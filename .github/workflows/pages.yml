@@ -1,0 +1,74 @@
+name: Deploy landing page to GitHub Pages
+
+# Publishes the marketing/download page (landing/) to GitHub Pages:
+# https://parth-191006.github.io/Recipe-pilot/
+#
+# This is deliberately a separate workflow from build-apk.yml — the Flutter
+# pipeline builds on every push to main, and re-running the whole toolchain
+# (analyze + tests + three APK splits) just to ship a static page would make
+# every landing tweak cost ~6 minutes of CI. This job only needs Node.
+#
+# Trigger: pushes that touch landing/ (content changes) or this file itself
+# (build-infra changes). Manual runs stay available via workflow_dispatch.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "landing/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write # required by the OIDC-based deploy-pages action
+
+# One deployment at a time: cancel a queued build when a newer push lands.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: landing/package-lock.json
+
+      # npm ci (not install): reproducible install straight from the lockfile.
+      - name: Install dependencies
+        working-directory: landing
+        run: npm ci
+
+      # vite.config.js sets base: './' so asset URLs are relative and the site
+      # works from the /Recipe-pilot/ subdirectory GitHub Pages gives a project
+      # site — no per-deploy config needed.
+      - name: Build landing page
+        working-directory: landing
+        run: npm run build
+
+      # enablement: true flips the Pages setting on for the repo on first
+      # deploy, so the site needs no manual toggle in repo Settings.
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: landing/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

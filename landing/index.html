@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Recipe Pilot — paste a recipe, get a shopping list</title>
+    <meta
+      name="description"
+      content="Recipe Pilot turns any recipe into an aisle-organised shopping list, offline and on your phone. No account, no tracking, no signal needed. Free Android APK, MIT licensed."
+    />
+    <meta name="theme-color" content="#0a0f0d" />
+    <meta name="color-scheme" content="dark" />
+
+    <link rel="icon" type="image/png" href="./app-icon.png" />
+    <link rel="apple-touch-icon" href="./app-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Recipe Pilot — paste a recipe, get a shopping list" />
+    <meta
+      property="og:description"
+      content="An offline-first recipe library and grocery-list converter for Android. Sorted by aisle, private by default, ~17 MB, no account."
+    />
+    <meta property="og:image" content="./screenshots/home.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!--
+      Two fonts, one job each:
+      • Fraunces — a soft, high-contrast serif with real warmth. Used only for
+        headlines and numbers, at large optical sizes.
+      • Karla — a plain, very readable humanist grotesque for everything else.
+      Loaded from Google Fonts with display=swap so first paint never waits.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..800&family=Karla:ital,wght@0,300..800;1,300..700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

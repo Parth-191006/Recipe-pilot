@@ -1,0 +1,188 @@
+@import 'tailwindcss';
+
+/* ==========================================================================
+   Design tokens — "warm kitchen at night"
+   --------------------------------------------------------------------------
+   Colours are lifted from the app itself: the ember is Recipe Pilot's
+   terracotta CTA, the herb green is its checkmark/progress green, and the
+   night stack is the dark-theme surface (warm charcoal with a green cast,
+   never a neutral grey). Three core hues + warm neutrals, no gradients
+   between them.
+   ========================================================================== */
+@theme {
+  --color-night-950: #0a0f0d; /* page base */
+  --color-night-900: #0f1613; /* second plane */
+  --color-night-850: #131c18;
+  --color-night-800: #18231d; /* cards */
+  --color-night-700: #21302a; /* raised surfaces, bezels */
+  --color-night-600: #2c3f36; /* hairlines on dark */
+
+  --color-cream-50: #fdfaf3;
+  --color-cream-100: #f5eee1; /* body text on dark */
+  --color-cream-200: #e7dcc9;
+  --color-cream-300: #cfc4ae;
+  --color-cream-400: #a89e8a; /* muted text */
+  --color-cream-500: #847b69; /* quietest text */
+
+  --color-ember-300: #ffb38a;
+  --color-ember-400: #ff8a5b;
+  --color-ember-500: #ea5a2b; /* the app's CTA terracotta */
+  --color-ember-600: #c9451c;
+
+  --color-herb-200: #e4f7d4;
+  --color-herb-300: #cdefb4;
+  --color-herb-400: #a8dc94; /* the app's mint */
+  --color-herb-500: #6fbf6a;
+
+  --font-display: 'Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-body: 'Karla', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
+
+  --shadow-lift: 0 34px 70px -32px rgb(0 0 0 / 0.85);
+  --shadow-ember: 0 20px 55px -20px rgb(234 90 43 / 0.5);
+
+  --animate-float: float 9s ease-in-out infinite;
+  --animate-pulse-dot: pulse-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* iOS Safari: don't inflate body copy in landscape. */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-night-950);
+    color: var(--color-cream-100);
+    font-family: var(--font-body);
+    font-optical-sizing: auto;
+    /* The rotated phone mockups hang off the right edge on narrow screens —
+     * clip rather than letting the page scroll sideways. */
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  .display {
+    font-family: var(--font-display);
+    font-variation-settings: 'opsz' 90, 'SOFT' 30;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Visible, on-brand focus ring for keyboard users everywhere. */
+  :focus-visible {
+    outline: 2px solid var(--color-herb-400);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-ember-500);
+    color: #fff;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* A whisper of paper grain over the whole page. Costs one tiny SVG and no
+ * blend modes (blend modes on a fixed full-screen layer are a scroll-perf
+ * trap on phones). */
+@utility grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Soft light sources, drawn as plain radial gradients (no blur filters — the
+ * gradient is already soft and this stays cheap on a mid-range phone). */
+@utility glow-ember {
+  background: radial-gradient(
+    closest-side,
+    rgb(234 90 43 / 0.42),
+    rgb(234 90 43 / 0.12) 55%,
+    transparent 78%
+  );
+}
+
+@utility glow-herb {
+  background: radial-gradient(
+    closest-side,
+    rgb(168 220 148 / 0.3),
+    rgb(168 220 148 / 0.08) 55%,
+    transparent 78%
+  );
+}
+
+@utility glow-cream {
+  background: radial-gradient(
+    closest-side,
+    rgb(245 238 225 / 0.16),
+    transparent 75%
+  );
+}
+
+/* Hairline rules that read as hand-drawn rather than CSS-default. */
+@utility rule-hair {
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgb(207 196 174 / 0.28) 12%,
+    rgb(207 196 174 / 0.28) 88%,
+    transparent
+  );
+  height: 1px;
+}
+
+/* Respect people who don't want motion: everything static, nothing hidden. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

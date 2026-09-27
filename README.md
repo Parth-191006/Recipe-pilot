@@ -9,6 +9,7 @@ recipe into a tidy, aisle-by-aisle grocery list in one tap.
 
 [![Build APK](https://github.com/Parth-191006/Recipe-pilot/actions/workflows/build-apk.yml/badge.svg)](https://github.com/Parth-191006/Recipe-pilot/actions/workflows/build-apk.yml)
 [![Latest release](https://img.shields.io/github/v/release/Parth-191006/Recipe-pilot?label=APK&sort=semver)](https://github.com/Parth-191006/Recipe-pilot/releases/latest)
+[![Landing page](https://img.shields.io/website?url=https%3A%2F%2Fparth-191006.github.io%2FRecipe-pilot%2F&label=Website)](https://parth-191006.github.io/Recipe-pilot/)
 [![Platform](https://img.shields.io/badge/platform-Android-green)](#-install-on-your-phone)
 [![Offline](https://img.shields.io/badge/offline-100%25-success)](#-offlinefirst-design)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -35,6 +36,10 @@ recipe into a tidy, aisle-by-aisle grocery list in one tap.
 
 > **No Flutter, no Android Studio, no building.** Every push to `main` produces
 > a ready-to-install APK and attaches it to a permanent release.
+
+Not sure yet? **[Take the tour first →](https://parth-191006.github.io/Recipe-pilot/)** —
+the landing page shows real screenshots, walks through what the app does, and
+ends at the same download link.
 
 1. **[Download the latest APK →](https://github.com/Parth-191006/Recipe-pilot/releases/latest)**
    (<https://github.com/Parth-191006/Recipe-pilot/releases/latest>)
