@@ -7,8 +7,8 @@
 **Plan it. Shop it. Cook it.** — an offline-first recipe library that turns any
 recipe into a tidy, aisle-by-aisle grocery list in one tap.
 
-[![Build APK](https://github.com/Parth-191006/Pantry-pilot/actions/workflows/build-apk.yml/badge.svg)](https://github.com/Parth-191006/Pantry-pilot/actions/workflows/build-apk.yml)
-[![Latest release](https://img.shields.io/github/v/release/Parth-191006/Pantry-pilot?label=APK&sort=semver)](https://github.com/Parth-191006/Pantry-pilot/releases/latest)
+[![Build APK](https://github.com/Parth-191006/Recipe-pilot/actions/workflows/build-apk.yml/badge.svg)](https://github.com/Parth-191006/Recipe-pilot/actions/workflows/build-apk.yml)
+[![Latest release](https://img.shields.io/github/v/release/Parth-191006/Recipe-pilot?label=APK&sort=semver)](https://github.com/Parth-191006/Recipe-pilot/releases/latest)
 [![Platform](https://img.shields.io/badge/platform-Android-green)](#-install-on-your-phone)
 [![Offline](https://img.shields.io/badge/offline-100%25-success)](#-offlinefirst-design)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -17,22 +17,27 @@ recipe into a tidy, aisle-by-aisle grocery list in one tap.
 
 ---
 
-> ### 🏷 One app, two names
+> ### 🏷 One app, one name — and one deliberate leftover
 >
-> The app is **Recipe Pilot**: that is what the launcher, the splash screen and
-> every release asset say. This repository is called **`Pantry-pilot`** — the
-> project's original codename, and still the slug in every link below. There is
-> no second, renamed copy to go hunting for; the Dart package id is
-> `pantry_pilot` too, which is why upgrades install in place instead of
-> duplicating themselves.
+> The app is **Recipe Pilot**, and so is the repository
+> ([`Parth-191006/Recipe-pilot`](https://github.com/Parth-191006/Recipe-pilot)):
+> the launcher, the splash screen, every release asset and every link on this
+> page agree. Two older names survive on purpose:
+>
+> - The repository used to be called **`Pantry-pilot`**. That URL still
+>   redirects here, so an old bookmark or clone keeps working — you have not
+>   landed on a fork.
+> - The Dart package id is still **`pantry_pilot`**, which keeps the Android
+>   `applicationId` stable: upgrades install *over* an existing build and keep
+>   every saved recipe, instead of appearing as a second app.
 
 ## 📲 Install on your phone
 
 > **No Flutter, no Android Studio, no building.** Every push to `main` produces
 > a ready-to-install APK and attaches it to a permanent release.
 
-1. **[Download the latest APK →](https://github.com/Parth-191006/Pantry-pilot/releases/latest)**
-   (<https://github.com/Parth-191006/Pantry-pilot/releases/latest>)
+1. **[Download the latest APK →](https://github.com/Parth-191006/Recipe-pilot/releases/latest)**
+   (<https://github.com/Parth-191006/Recipe-pilot/releases/latest>)
 
    The release carries one file per CPU architecture — pick
    **`Recipe-Pilot-v*-arm64-v8a.apk`** unless you know your phone is different.
@@ -131,8 +136,8 @@ which is why the fix lands in the right aisle instead of an "Other" bucket.
 ## 🏗 Build from source
 
 ```bash
-git clone https://github.com/Parth-191006/Pantry-pilot.git
-cd Pantry-pilot
+git clone https://github.com/Parth-191006/Recipe-pilot.git
+cd Recipe-pilot
 flutter create . --platforms android   # one-time: generates android/
 flutter pub get
 python tool/generate_icons.py          # regenerate launcher art after logo edits

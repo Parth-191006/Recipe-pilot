@@ -121,6 +121,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           : Icons.menu_book_rounded,
                       color: split ? AppTheme.terracotta : AppTheme.checkGreen,
                       title: split ? 'Your own recipes' : 'Your recipes',
+                      // The split only makes sense if it says why: yours are
+                      // the ones you wrote, ordered by when you wrote them.
+                      subtitle: split ? 'Added by you — newest first' : null,
                       trailing: _CountBadge(
                         count: split ? mine.length : recipes.length,
                       ),
@@ -139,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           icon: Icons.menu_book_rounded,
                           color: AppTheme.checkGreen,
                           title: 'Built-in library',
+                          subtitle: 'Shipped with Recipe Pilot',
                           trailing: _CountBadge(count: library.length),
                         ),
                         const SizedBox(height: 10),

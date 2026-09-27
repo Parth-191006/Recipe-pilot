@@ -285,7 +285,9 @@ const List<_Pinned> _pinned = [
   _Pinned('1 cup vegetable broth', 'Vegetable broth', '1', 'cups',
       GroceryCategory.pantry),
   _Pinned('2 tsp hot sauce', 'Hot sauce', '2', 'tsp', GroceryCategory.pantry),
-  _Pinned('1 tsp vanilla extract', 'Vanilla', '1', 'tsp',
+  // "extract" is a spice keyword, not a prep word: the bottle is what you
+  // buy, so the name keeps it.
+  _Pinned('1 tsp vanilla extract', 'Vanilla extract', '1', 'tsp',
       GroceryCategory.spices),
   _Pinned('1 tsp baking powder', 'Baking powder', '1', 'tsp',
       GroceryCategory.spices),
