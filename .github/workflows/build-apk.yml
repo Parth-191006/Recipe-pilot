@@ -170,9 +170,12 @@ jobs:
           path: test_output.log
           if-no-files-found: ignore
 
-      - name: Build release APK
+      # --split-per-abi: the app ships one native engine per architecture, and
+      # a universal APK carries all three (~49 MB). Splitting drops each
+      # download to roughly a third of that for exactly the same app.
+      - name: Build release APKs (one per ABI)
         run: |
-          flutter build apk --release 2>&1 | tee build_output.log
+          flutter build apk --release --split-per-abi 2>&1 | tee build_output.log
           exit ${PIPESTATUS[0]}
 
       - name: Dump build failures to annotations
@@ -181,14 +184,21 @@ jobs:
           TAIL=$(tail -80 build_output.log 2>/dev/null | sed ':a;N;$!ba;s/\n/%0A/g')
           if [ -n "$TAIL" ]; then echo "::error::BUILDLOG::$TAIL"; fi
 
-      - name: Stage APK with versioned name
+      - name: Stage APKs with versioned names
         id: apk
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | cut -d' ' -f2 | cut -d'+' -f1)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-release.apk \
-             "dist/Recipe-Pilot-v$VERSION.apk"
+          for ABI in arm64-v8a armeabi-v7a x86_64; do
+            SRC="build/app/outputs/flutter-apk/app-$ABI-release.apk"
+            if [ -f "$SRC" ]; then
+              cp "$SRC" "dist/Recipe-Pilot-v$VERSION-$ABI.apk"
+            else
+              echo "::warning::missing build/app/outputs/flutter-apk/app-$ABI-release.apk"
+            fi
+          done
+          ls -lh dist
 
       # Artifacts expire after 90 days; a GitHub Release is permanent and
       # gives the repo a fixed, shareable download link on its front page.
@@ -201,15 +211,23 @@ jobs:
             **Recipe Pilot v${{ steps.apk.outputs.version }}** — offline-first recipe library & Recipe → Grocery List converter.
 
             ## Install
-            1. Download `Recipe-Pilot-v${{ steps.apk.outputs.version }}.apk` below.
+            1. Download the APK that matches your phone — **`arm64-v8a` for almost every
+               phone made since ~2015**. Only pick `armeabi-v7a` on an older 32-bit device
+               (`x86_64` is for emulators and Intel tablets).
             2. Open it on your Android phone and allow *Install unknown apps* for your browser if asked.
             3. If **Play Protect** shows a scan prompt, tap **More details → Install anyway** — the app is unsigned-store open-source software, has no ads/tracking, and never touches the network.
             4. Existing installs upgrade in place and keep all saved recipes.
+
+            One file per CPU architecture: the universal build carried all three native
+            engines, so splitting it makes each download roughly a third of the size for
+            exactly the same app.
 
             ## What's inside
             - Fully offline: Hive storage, rule-based parser, zero analytics
             - Cartoon kitchen hero, glowing dark mode, hand-built animations
             - Add-recipe studio with paste-a-block splitting and live aisle preview
+            - Fix a "Needs review" line in place; unit-aware merging (200 g + 1 kg)
+            - Your own recipes have their own shelf, and cook-along timers are adjustable
           files: dist/Recipe-Pilot-v*.apk
           overwrite_files: true
         env:

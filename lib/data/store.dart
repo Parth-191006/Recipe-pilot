@@ -262,6 +262,31 @@ class AppController extends ChangeNotifier {
     return recipes.where((r) => r.tags.contains(tag)).toList(growable: false);
   }
 
+  /// Recipes the user created themselves, newest first.
+  ///
+  /// Sorting by the timestamp inside the id (instead of list order) means the
+  /// order survives a restart: Hive returns box keys sorted, not in insertion
+  /// order, so "reverse of the list" would scramble on the second launch.
+  List<Recipe> _newestFirst(Iterable<Recipe> from) {
+    final mine = from.where((r) => r.isUserMade).toList();
+    mine.sort((a, b) => b.createdMillis.compareTo(a.createdMillis));
+    return mine;
+  }
+
+  /// Built-ins shipped with the app (never edited, always re-seeded).
+  List<Recipe> _builtIns(Iterable<Recipe> from) =>
+      from.where((r) => !r.isUserMade).toList(growable: false);
+
+  /// The whole library, split into "mine" and "shipped with the app" so the
+  /// home shelf can show your own recipes in their own section.
+  List<Recipe> get myRecipes => _newestFirst(recipes);
+  List<Recipe> get builtInRecipes => _builtIns(recipes);
+
+  /// The same split, honouring the active filter pill (a tag pill matches
+  /// built-ins; user recipes are untagged, so they appear under "All").
+  List<Recipe> get visibleMyRecipes => _newestFirst(visibleRecipes);
+  List<Recipe> get visibleBuiltInRecipes => _builtIns(visibleRecipes);
+
   void setActiveTag(String? tag) {
     final next = (tag == null || tag == allTag) ? null : tag;
     if (next == _activeTag) return;
@@ -366,6 +391,30 @@ class AppController extends ChangeNotifier {
     _rebuildChecked(); // a deleted item must not linger in checkedIdSet
     notifyListeners();
     await store.removeItem(id);
+  }
+
+  /// Replaces a flagged row with what the user typed in the review editor.
+  ///
+  /// One atomic save: the flagged row is dropped and the replacements are
+  /// merged into the existing aisles (same rules as a fresh parse) before the
+  /// list is written, so a crash mid-way can never leave the row both gone
+  /// and unfiled.
+  Future<void> resolveReviewRow(
+    GroceryItem review,
+    List<GroceryItem> replacements,
+  ) async {
+    final l = list;
+    if (l == null) return;
+    final next = parser.regroup([
+      for (final s in l.sections)
+        for (final i in s.items)
+          if (i.id != review.id) i,
+      ...replacements,
+    ]);
+    list = next;
+    _rebuildChecked();
+    notifyListeners();
+    await store.saveList(next);
   }
 
   /// Undo support: re-insert a previously dismissed item.

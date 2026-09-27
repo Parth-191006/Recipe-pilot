@@ -15,7 +15,10 @@ import 'models.dart';
 ///   5. unit      — curated alias table → one canonical spelling
 ///   6. name      — prep/size words stripped, synonyms folded, merged by
 ///                  singular key so "1 carrot" + "2 carrots" is one row
-///   7. confidence— a line whose leftovers still contain digits/brackets, or
+///   7. merging   — equal rows combine ("1 cup milk" + "2 cups milk" → "3"),
+///                  and so do different units of one family
+///                  ("200 g" + "1 kg" → "1.2 kg") — never two rows for one buy
+///   8. confidence— a line whose leftovers still contain digits/brackets, or
 ///                  two ingredients sharing one quantity, becomes a
 ///                  [GroceryItem.needsReview] row carrying the untouched text
 ///                  instead of a silently wrong amount.
@@ -25,22 +28,52 @@ class IngredientParser {
   GroceryListResult parse(Recipe recipe) {
     final buckets = <GroceryItem>[];
     final byKey = <String, int>{}; // merge key → index in buckets
-
     for (final raw in recipe.ingredients) {
-      for (final item in _itemsForLine(raw)) {
-        final key =
-            item.needsReview ? 'review:${item.id}' : _mergeKey(item.name);
-        final existing = byKey[key];
-        if (existing == null) {
-          byKey[key] = buckets.length;
-          buckets.add(item);
-        } else {
-          buckets[existing] = _merge(buckets[existing], item);
-        }
+      _addAll(buckets, byKey, _itemsForLine(raw));
+    }
+    return GroceryListResult(sections: _sectionsFrom(buckets));
+  }
+
+  /// One line, parsed exactly as a recipe's ingredient would be.
+  ///
+  /// The review-row editor runs the *same* rules on what the user typed, so a
+  /// hand-fixed line can never be filed differently from a pasted one.
+  List<GroceryItem> itemsForLine(String line) => _itemsForLine(line);
+
+  /// Re-groups a flat list of items into canonical aisle order, combining
+  /// duplicates with the same key, quantity and unit rules a fresh parse uses.
+  ///
+  /// This is what makes a hand-fixed review row land in the right section —
+  /// and what stops it from becoming a second row for something the shopper
+  /// already has on the list ("1 cup flour" edited in, next to the "2 cups
+  /// flour" already there, must read "3 cups").
+  GroceryListResult regroup(Iterable<GroceryItem> items) {
+    final buckets = <GroceryItem>[];
+    final byKey = <String, int>{};
+    _addAll(buckets, byKey, items);
+    return GroceryListResult(sections: _sectionsFrom(buckets));
+  }
+
+  /// Bucket one batch of items in by merge key, combining duplicates in place.
+  void _addAll(
+    List<GroceryItem> buckets,
+    Map<String, int> byKey,
+    Iterable<GroceryItem> items,
+  ) {
+    for (final item in items) {
+      final key = item.needsReview ? 'review:${item.id}' : _mergeKey(item.name);
+      final existing = byKey[key];
+      if (existing == null) {
+        byKey[key] = buckets.length;
+        buckets.add(item);
+      } else {
+        buckets[existing] = _merge(buckets[existing], item);
       }
     }
+  }
 
-    // Group by category in enum order (produce first) → stable section order.
+  /// Group by category in enum order (produce first) → stable section order.
+  List<GrocerySection> _sectionsFrom(List<GroceryItem> buckets) {
     final sections = <GrocerySection>[];
     for (final cat in GroceryCategory.values) {
       final items = buckets.where((i) => i.category == cat).toList();
@@ -48,7 +81,7 @@ class IngredientParser {
         sections.add(GrocerySection(category: cat, items: items));
       }
     }
-    return GroceryListResult(sections: sections);
+    return sections;
   }
 
   /// One recipe line → zero, one or many grocery items.
@@ -527,7 +560,9 @@ class IngredientParser {
     r'diced|chopped|minced|sliced|grated|shredded|julienned|cubed|quartered|'
     r'halved|peeled|seeded|cored|trimmed|washed|rinsed|drained|patted|dry|'
     r'dried|crumbled|crushed|beaten|whisked|melted|softened|chilled|thawed|'
-    r'frozen|cooked|uncooked|raw|firm|silken|extra[-\s]?firm|warm|cold|'
+    r'frozen|cooked|uncooked|raw|firm|silken|extra[-\s]?firm|warm|cold|warmed|'
+    r'cooled|ripe|unripe|roasted|toasted|boiled|steamed|mashed|cracked|'
+    r'shaved|zested|pitted|deveined|refrigerated|overnight|firmly|lengthwise|'
     r'fresh|freshest|freshly|stale|day[-\s]old|leftover|leftovers|'
     r'packed|heaping|level|leveled|scant|generous|about|approximately|'
     r'plus|more|divided|optional|taste|serve|serving|garnish|such|as|'
@@ -628,22 +663,134 @@ class IngredientParser {
 
   // ---- Merging ------------------------------------------------------------
 
+  /// Both tables measure one physical quantity, so entries *within* a table
+  /// can be added to each other. Metric is the base (grams / millilitres),
+  /// which is why a metric answer is what a mixed imperial sum lands on.
+  static const Map<String, double> _massInGrams = {
+    'g': 1,
+    'kg': 1000,
+    'oz': 28.3495,
+    'lb': 453.592,
+  };
+
+  static const Map<String, double> _volumeInMl = {
+    'ml': 1,
+    'L': 1000,
+    'tsp': 4.92892,
+    'tbsp': 14.7868,
+    'fl oz': 29.5735,
+    'cups': 236.588,
+    'pints': 473.176,
+    'quarts': 946.353,
+  };
+
+  /// The next unit up, so a sum can read naturally instead of piling up
+  /// ("1200 g" → "1.2 kg").
+  /// (Deliberately not 'tsp' → 'tbsp': "4 tsp" reads clearer than
+  /// "1.33 tbsp" for a cook.)
+  static const Map<String, String> _biggerSibling = {
+    'g': 'kg',
+    'ml': 'L',
+    'oz': 'lb',
+  };
+
+  /// Combines two amounts of the same ingredient into one row.
+  ///
+  /// The promise is unchanged — never invent an amount:
+  ///  • equal units (or two countable things) add up, as always;
+  ///  • different units of one family are converted and added, so a recipe
+  ///    that says "200 g" in one place and "1 kg" in another gives "1.2 kg"
+  ///    rather than two lines for one bag;
+  ///  • units from *different* families (a cup of flour plus 100 g of it) or a
+  ///    ranged count ("2–3") have no single truthful number, so both amounts
+  ///    are written out side by side.
   GroceryItem _merge(GroceryItem a, GroceryItem b) {
     final qA = double.tryParse(a.quantity);
     final qB = double.tryParse(b.quantity);
-    // A ranged count ("2–3") or an unspecified one ("") has no single value,
-    // so the written form wins instead of being summed into a number we cannot
+
+    if (qA != null && qB != null) {
+      final combined = _addInFamily(qA, a.unit, qB, b.unit, _massInGrams) ??
+          _addInFamily(qA, a.unit, qB, b.unit, _volumeInMl);
+      if (combined != null) {
+        return a.copyWith(quantity: combined.quantity, unit: combined.unit);
+      }
+      // Countable things ("2 eggs" + "3 eggs"): no unit to convert.
+      if (a.unit == b.unit) {
+        return a.copyWith(quantity: _formatAmount(qA + qB), unit: a.unit);
+      }
+      return a.copyWith(quantity: _writeBoth(a, b), unit: '');
+    }
+
+    // A row that already carries several amounts written out ("1 cup + 100 g")
+    // keeps growing: a third unit must not silently vanish behind it.
+    if (a.quantity.contains(' + ') && b.quantity.isNotEmpty) {
+      return a.copyWith(quantity: _writeBoth(a, b), unit: '');
+    }
+
+    // A ranged count ("2–3") or an unspecified one has no single value, so the
+    // written form wins instead of being summed into a number we cannot
     // justify.
-    final total = (qA == null || qB == null) ? null : qA + qB;
     return a.copyWith(
-      quantity: total != null
-          ? _formatAmount(total)
-          : (a.quantity.isNotEmpty ? a.quantity : b.quantity),
+      quantity: a.quantity.isNotEmpty ? a.quantity : b.quantity,
       unit: a.unit.isEmpty ? b.unit : a.unit,
     );
   }
 
+  /// Adds two amounts that measure the same physical thing, expressed in
+  /// whichever unit reads best: the larger of the two while the total stays at
+  /// or above 1 ("1.2 kg"), the smaller one otherwise (never "0.3 cups").
+  ///
+  /// Returns null when the two units belong to different families (or no
+  /// family at all), which is the caller's cue to try another rule.
+  ({String quantity, String unit})? _addInFamily(
+    double qA,
+    String unitA,
+    double qB,
+    String unitB,
+    Map<String, double> family,
+  ) {
+    final fA = family[unitA];
+    final fB = family[unitB];
+    if (fA == null || fB == null) return null;
+    final total = qA * fA + qB * fB;
+    final big = fA >= fB ? unitA : unitB;
+    final small = fA >= fB ? unitB : unitA;
+
+    if (total / family[big]! >= 1) {
+      // 1200 g reads better as 1.2 kg; 300 g stays 300 g.
+      final promoted = _biggerSibling[big];
+      if (promoted != null && total / family[promoted]! >= 1) {
+        return (
+          quantity: _formatAmount(total / family[promoted]!),
+          unit: promoted,
+        );
+      }
+      return (quantity: _formatAmount(total / family[big]!), unit: big);
+    }
+    return (quantity: _formatAmount(total / family[small]!), unit: small);
+  }
+
+  /// Two amounts that cannot be added honestly, written out so neither is
+  /// lost: "1 cup + 100 g". The unit travels inside the quantity because it
+  /// labels each half, so [GroceryItem.amountLabel] prints it verbatim.
+  String _writeBoth(GroceryItem a, GroceryItem b) {
+    String part(String quantity, String unit) {
+      if (quantity.isEmpty) return '';
+      return unit.isEmpty ? quantity : GroceryItem.amountText(quantity, unit);
+    }
+
+    final parts = <String>[
+      part(a.quantity, a.unit),
+      part(b.quantity, b.unit),
+    ].where((p) => p.isNotEmpty);
+    return parts.join(' + ');
+  }
+
   // ---- Categorisation -----------------------------------------------------
+
+  /// Stable id for a hand-entered row, using the same scheme as parsed items
+  /// so a manual fix and a later paste of the same line are the same row.
+  static String contentId(String text) => _contentId(text);
 
   /// Deterministic content id. `String.hashCode` is not guaranteed stable
   /// across runs or platforms, and these ids are persisted Hive keys (and the
@@ -695,7 +842,8 @@ class IngredientParser {
     _CatRule(GroceryCategory.spices, [
       'salt', 'pepper', 'cumin', 'paprika', 'turmeric', 'cinnamon', 'nutmeg',
       'oregano', 'thyme', 'rosemary', 'chili powder', 'cayenne', 'curry',
-      'coriander powder', 'cardamom', 'cloves', 'bay leaf', 'chili flake',
+      'coriander powder', 'cardamom', 'cloves', 'bay leaf', 'bay',
+      'onion powder', 'garlic powder', 'chili flake',
       'dill', 'vanilla', 'baking powder', 'baking soda', 'yeast', 'seasoning',
       'saffron', 'extract',
     ]),
@@ -715,6 +863,8 @@ class IngredientParser {
       'lemon', 'apple', 'banana', 'berry', 'berries', 'grape', 'mango',
       'pineapple', 'orange', 'cabbage', 'corn', 'peas', 'green bean',
       'eggplant', 'beet', 'radish', 'asparagus', 'chili', 'jalapeño',
+      // The ASCII spelling, which is what most people actually type.
+      'jalapeno',
       'pumpkin', 'squash', 'okra', 'turnip', 'parsnip', 'fennel',
     ]),
     _CatRule(GroceryCategory.pantry, [

@@ -60,10 +60,26 @@ class _CookAlongScreenState extends State<CookAlongScreen> {
 
   Timer? _ticker;
 
+  /// Countdown length the cook settled on, keyed by step index.
+  ///
+  /// "As long as *you* need it": a step's own duration is only a starting
+  /// point, so +/- here re-times this cook without touching the recipe. `0`
+  /// means "no timer on this step" — the stopwatch card instead. Session-only
+  /// by design: the recipe's stored timings are never silently rewritten.
+  final Map<int, int> _secondsOverride = <int, int>{};
+
   Recipe get recipe => widget.recipe;
   List<RecipeStep> get _steps => recipe.steps;
   RecipeStep get _step => _steps[_index];
-  bool get _timed => _step.seconds != null;
+
+  /// The current step's countdown in seconds, override first.
+  int? get _stepSeconds {
+    final override = _secondsOverride[_index];
+    if (override != null) return override == 0 ? null : override;
+    return _step.seconds;
+  }
+
+  bool get _timed => _stepSeconds != null;
   bool get _isLast => _index == _steps.length - 1;
   bool get _timerRunning => _countdownEnd != null || _stopwatchStart != null;
 
@@ -146,13 +162,48 @@ class _CookAlongScreenState extends State<CookAlongScreen> {
       if (_timed) {
         // After an expiry, Start re-runs the step's full countdown.
         if (_countdownRemaining == Duration.zero) {
-          _countdownRemaining = Duration(seconds: _step.seconds ?? 0);
+          _countdownRemaining = Duration(seconds: _stepSeconds ?? 0);
         }
         _countdownEnd = now.add(_countdownRemaining);
       }
       _stopwatchStart ??= now;
     });
     _startTicker();
+  }
+
+  /// Adds (or removes) time on the current step's countdown.
+  ///
+  /// A running timer has its deadline shifted, so the change lands from *now*
+  /// ("the sauce needs five more minutes" extends what is left, not what was
+  /// already cooked). Paused/idle/expired timers adjust the frozen remainder.
+  void _adjustTimer(int deltaSeconds) {
+    final current = _stepSeconds ?? 0;
+    // Never shrink a timer into a sliver: 10 s is the floor for one tap.
+    final next = math.max(10, current + deltaSeconds);
+    setState(() {
+      _secondsOverride[_index] = next;
+      final end = _countdownEnd;
+      if (end != null) {
+        _countdownEnd = end.add(Duration(seconds: deltaSeconds));
+      } else {
+        final remaining = _countdownRemaining + Duration(seconds: deltaSeconds);
+        _countdownRemaining =
+            remaining.isNegative ? Duration.zero : remaining;
+      }
+    });
+  }
+
+  /// Gives an untimed step a countdown of your own choosing.
+  void _setTimer(int seconds) {
+    setState(() => _secondsOverride[_index] = seconds);
+    // Rebuilds the step's timer state from scratch: a fresh, idle countdown.
+    _resetTimersForStep();
+  }
+
+  /// Hands the step back to the ambient stopwatch.
+  void _clearTimer() {
+    setState(() => _secondsOverride[_index] = 0);
+    _resetTimersForStep();
   }
 
   void _pauseTimer() {
@@ -173,7 +224,7 @@ class _CookAlongScreenState extends State<CookAlongScreen> {
   /// the step's full duration. Untimed steps start their ambient stopwatch
   /// immediately — it ticks on its own and never demands attention.
   void _resetTimersForStep() {
-    _countdownRemaining = Duration(seconds: _step.seconds ?? 0);
+    _countdownRemaining = Duration(seconds: _stepSeconds ?? 0);
     _countdownEnd = null;
     _stopwatchStart = null;
     _stopwatchElapsed = Duration.zero;
@@ -259,11 +310,15 @@ class _CookAlongScreenState extends State<CookAlongScreen> {
                 stepNumber: _index + 1,
                 totalSteps: _steps.length,
                 timed: _timed,
+                stepSeconds: _stepSeconds,
                 mode: _timerMode,
                 remaining: _remaining,
                 elapsed: _elapsed,
                 onStartTimer: _startTimer,
                 onPauseTimer: _pauseTimer,
+                onAdjustTimer: _adjustTimer,
+                onSetTimer: _setTimer,
+                onClearTimer: _clearTimer,
                 onNext: () {
                   if (_isLast) {
                     _finish();
@@ -295,11 +350,15 @@ class _StepView extends StatelessWidget {
     required this.stepNumber,
     required this.totalSteps,
     required this.timed,
+    required this.stepSeconds,
     required this.mode,
     required this.remaining,
     required this.elapsed,
     required this.onStartTimer,
     required this.onPauseTimer,
+    required this.onAdjustTimer,
+    required this.onSetTimer,
+    required this.onClearTimer,
     required this.onNext,
     required this.onBack,
   });
@@ -308,11 +367,17 @@ class _StepView extends StatelessWidget {
   final int stepNumber;
   final int totalSteps;
   final bool timed;
+
+  /// Countdown this step is currently set to (recipe's own, or the cook's).
+  final int? stepSeconds;
   final _TimerMode mode;
   final Duration remaining;
   final Duration elapsed;
   final VoidCallback onStartTimer;
   final VoidCallback onPauseTimer;
+  final void Function(int deltaSeconds) onAdjustTimer;
+  final void Function(int seconds) onSetTimer;
+  final VoidCallback onClearTimer;
   final VoidCallback onNext;
   final VoidCallback? onBack;
 
@@ -340,7 +405,7 @@ class _StepView extends StatelessWidget {
                           if (timed) ...[
                             _TimerRing(
                               remaining: remaining,
-                              total: Duration(seconds: step.seconds ?? 0),
+                              total: Duration(seconds: stepSeconds ?? 0),
                               mode: mode,
                             ),
                             const SizedBox(height: 20),
@@ -349,8 +414,22 @@ class _StepView extends StatelessWidget {
                               onStart: onStartTimer,
                               onPause: onPauseTimer,
                             ),
-                          ] else
+                            const SizedBox(height: 14),
+                            _TimerAdjustRow(
+                              seconds: stepSeconds,
+                              onAdjust: onAdjustTimer,
+                              onClear: onClearTimer,
+                            ),
+                          ] else ...[
                             _StopwatchChip(elapsed: elapsed),
+                            const SizedBox(height: 10),
+                            TextButton.icon(
+                              key: const ValueKey('timer_set'),
+                              onPressed: () => _pickTimerPreset(context, onSetTimer),
+                              icon: const Icon(Icons.add_alarm_rounded, size: 18),
+                              label: const Text('Set a timer for this step'),
+                            ),
+                          ],
                           const SizedBox(height: 28),
                           Text(
                             step.text,
@@ -581,6 +660,169 @@ class _TimerControls extends StatelessWidget {
       label: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
     );
   }
+}
+
+// ---------------------------------------------------------------------------
+// "As long as you need it": re-time the current step without touching the
+// recipe. Presets for untimed steps live in _pickTimerPreset.
+// ---------------------------------------------------------------------------
+
+/// "45 sec" / "5 min" / "1 min 30 sec".
+String _durationLabel(int seconds) {
+  final minutes = seconds ~/ 60;
+  final rest = seconds % 60;
+  if (minutes == 0) return '$rest sec';
+  if (rest == 0) return '$minutes min';
+  return '$minutes min $rest sec';
+}
+
+class _TimerAdjustRow extends StatelessWidget {
+  const _TimerAdjustRow({
+    required this.seconds,
+    required this.onAdjust,
+    required this.onClear,
+  });
+
+  final int? seconds;
+  final void Function(int deltaSeconds) onAdjust;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Text(
+          'Timer · ${seconds == null ? 'none' : _durationLabel(seconds!)}',
+          key: const ValueKey('timer_total'),
+          style: theme.textTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          alignment: WrapAlignment.center,
+          children: [
+            _TimerChip(
+              key: const ValueKey('timer_minus'),
+              icon: Icons.remove_rounded,
+              label: '1 min',
+              onTap: () => onAdjust(-60),
+            ),
+            _TimerChip(
+              key: const ValueKey('timer_plus'),
+              icon: Icons.add_rounded,
+              label: '1 min',
+              onTap: () => onAdjust(60),
+            ),
+            _TimerChip(
+              key: const ValueKey('timer_plus_five'),
+              icon: Icons.add_rounded,
+              label: '5 min',
+              onTap: () => onAdjust(300),
+            ),
+            _TimerChip(
+              key: const ValueKey('timer_clear'),
+              icon: Icons.timer_off_outlined,
+              label: 'Stopwatch',
+              onTap: onClear,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _TimerChip extends StatelessWidget {
+  const _TimerChip({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      style: OutlinedButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        side: BorderSide(color: scheme.outlineVariant),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      icon: Icon(icon, size: 16),
+      label: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+    );
+  }
+}
+
+/// Minutes offered when giving an untimed step a countdown of your own.
+const List<int> _timerPresetMinutes = [1, 2, 3, 5, 10, 15, 20, 30, 45, 60];
+
+Future<void> _pickTimerPreset(
+  BuildContext context,
+  void Function(int seconds) onPicked,
+) async {
+  final theme = Theme.of(context);
+  final minutes = await showModalBottomSheet<int>(
+    context: context,
+    showDragHandle: true,
+    builder: (sheetContext) => SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'How long does this step need?',
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Only this cook is affected — the recipe keeps its own timings.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final m in _timerPresetMinutes)
+                  OutlinedButton(
+                    key: ValueKey('timer_preset_$m'),
+                    onPressed: () => Navigator.of(sheetContext).pop(m),
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      m == 60 ? '1 hour' : '$m min',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+  if (minutes == null) return;
+  onPicked(minutes * 60);
 }
 
 // ---------------------------------------------------------------------------

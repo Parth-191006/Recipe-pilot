@@ -63,24 +63,40 @@ class GroceryItem {
     'envelope': 'envelopes',
   };
 
+  /// Measuring units the parser stores plural (so sums read "3 cups") whose
+  /// singular spelling is needed once the amount is one or less — "1 cup",
+  /// "0.5 cup". Container words are handled by [_containerPlurals].
+  static const Map<String, String> _singularUnits = {
+    'cups': 'cup',
+    'cloves': 'clove',
+    'quarts': 'quart',
+    'pints': 'pint',
+  };
+
   /// Label shown in the leading pill, e.g. "2 cups" or "3".
-  String get amountLabel {
+  String get amountLabel => amountText(quantity, unit);
+
+  /// How one amount reads in a pill — shared with the parser, which writes
+  /// two incompatible amounts side by side ("1 cup + 100 g") and needs the
+  /// same spelling rules.
+  static String amountText(String quantity, String unit) {
     final q = quantity.trim();
     final u = unit.trim();
     if (q.isEmpty && u.isEmpty) return '1';
     if (q.isEmpty) return u;
     if (u.isEmpty) return q;
-    return '$q ${_displayUnit(u)}';
+    return '$q ${_displayUnitFor(q, u)}';
   }
 
-  String _displayUnit(String u) {
-    final n = double.tryParse(quantity.trim());
+  static String _displayUnitFor(String quantity, String u) {
+    final n = double.tryParse(quantity);
+    // One or less ("1 cup", "0.5 cup"), or a range that starts at 1
+    // ("1–2 cups"): the singular/plural split follows the first number.
     final singular = n != null
-        ? n == 1
-        // Ranges ("2–3") have no single value: treat them as plural unless
-        // they start at 1 ("1–2 cans" still reads best as "cans").
-        : quantity.trim().split(RegExp(r'[^0-9.]')).first == '1';
-    return singular ? u : (_containerPlurals[u] ?? u);
+        ? n <= 1
+        : quantity.split(RegExp(r'[^0-9.]')).first == '1';
+    if (!singular) return _containerPlurals[u] ?? u;
+    return _singularUnits[u] ?? u;
   }
 
   GroceryItem copyWith({
@@ -154,9 +170,22 @@ class Recipe {
     this.steps = const [],
   });
 
+  /// Id prefix that marks a recipe as created on this device. The shelf, the
+  /// delete menu and the self-cook-along all key off it, and user ids carry a
+  /// timestamp (`user_<millis>`) so they can be sorted by age after a restart —
+  /// Hive only preserves key order, not insertion order.
+  static const String userPrefix = 'user_';
+
   final String id;
   final String title;
   final String emoji;
+
+  /// True for recipes the user typed/pasted themselves (deletable, editable).
+  bool get isUserMade => id.startsWith(userPrefix);
+
+  /// Milliseconds-since-epoch this recipe was created, or 0 for built-ins.
+  int get createdMillis =>
+      int.tryParse(id.replaceFirst(userPrefix, '')) ?? 0;
 
   /// Raw ingredient lines exactly as a user would paste them.
   final List<String> ingredients;

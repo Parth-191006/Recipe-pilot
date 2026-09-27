@@ -44,6 +44,28 @@ class _HomeScreenState extends State<HomeScreen> {
     final recipes = app.visibleRecipes;
     final filters = app.availableTags;
 
+    // Two shelves once you have recipes of your own: yours first (newest
+    // first, so the one you just typed is at the top of the screen), then the
+    // built-in library. With none of your own it stays the single shelf it has
+    // always been. Tag pills can hide one side of the split, so each header is
+    // only drawn when it has something under it.
+    final mine = app.visibleMyRecipes;
+    final library = app.visibleBuiltInRecipes;
+    final split = mine.isNotEmpty && library.isNotEmpty;
+
+    List<Widget> shelf(List<Recipe> group, String slug) => [
+          for (var i = 0; i < group.length; i++)
+            StaggeredEntrance(
+              // Keyed by filter+group+id so switching pills — or moving your
+              // first recipe into its own shelf — replays a fresh slide-up
+              // cascade on the new set.
+              key: ValueKey('${app.activeTag}:$slug:${group[i].id}'),
+              index: i,
+              baseDelay: const Duration(milliseconds: 90),
+              child: _RecipeCard(recipe: group[i]),
+            ),
+        ];
+
     // "Ready in 30": the fast wins, shortest first. Hidden while a filter is
     // active so the filtered shelf is never duplicated above it.
     final quickPicks = app.recipes
@@ -94,24 +116,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     _SectionTitle(
                       key: _libraryKey,
-                      icon: Icons.menu_book_rounded,
-                      color: AppTheme.checkGreen,
-                      title: 'Your recipes',
-                      trailing: _CountBadge(count: recipes.length),
+                      icon: split
+                          ? Icons.person_rounded
+                          : Icons.menu_book_rounded,
+                      color: split ? AppTheme.terracotta : AppTheme.checkGreen,
+                      title: split ? 'Your own recipes' : 'Your recipes',
+                      trailing: _CountBadge(
+                        count: split ? mine.length : recipes.length,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     if (recipes.isEmpty)
-                      _NoMatches(tag: app.activeTag, onShowAll: () => app.setActiveTag(null))
-                    else
-                      for (var i = 0; i < recipes.length; i++)
-                        StaggeredEntrance(
-                          // Keyed by filter+id so switching pills replays a
-                          // fresh slide-up cascade on the new set.
-                          key: ValueKey('${app.activeTag}:${recipes[i].id}'),
-                          index: i,
-                          baseDelay: const Duration(milliseconds: 90),
-                          child: _RecipeCard(recipe: recipes[i]),
+                      _NoMatches(
+                        tag: app.activeTag,
+                        onShowAll: () => app.setActiveTag(null),
+                      )
+                    else ...[
+                      ...shelf(split ? mine : recipes, 'shelf'),
+                      if (split) ...[
+                        const SizedBox(height: 4),
+                        _SectionTitle(
+                          icon: Icons.menu_book_rounded,
+                          color: AppTheme.checkGreen,
+                          title: 'Built-in library',
+                          trailing: _CountBadge(count: library.length),
                         ),
+                        const SizedBox(height: 10),
+                        ...shelf(library, 'library'),
+                      ],
+                    ],
                     const SizedBox(height: 6),
                     _TipCard(onAdd: _openAddRecipe),
                   ],

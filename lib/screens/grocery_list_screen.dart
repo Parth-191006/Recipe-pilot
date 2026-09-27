@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../app_scope.dart';
+import '../data/ingredient_parser.dart';
 import '../data/models.dart';
 import '../data/store.dart';
 import '../theme/app_theme.dart';
@@ -179,12 +180,24 @@ class _MeterHeader extends StatelessWidget {
 /// Card for lines the parser could not read confidently.
 ///
 /// The bargain the parser makes: it never invents a quantity, unit or name.
-/// Anything it cannot split honestly lands here with the recipe's own text, so
-/// the fix is an edit to the recipe rather than a silently wrong shopping row.
+/// Anything it cannot split honestly lands here with the recipe's own text —
+/// but a dead end would be a poor bargain, so every row is tappable: fix it
+/// in place, split it into as many lines as you need, or drop it. The fixed
+/// line goes through the very same parser, so it lands in its real aisle.
 class _ReviewCard extends StatelessWidget {
   const _ReviewCard({required this.items});
 
   final List<GroceryItem> items;
+
+  void _openEditor(BuildContext context, GroceryItem item) {
+    final app = context.app;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _ReviewEditorSheet(review: item, app: app),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +233,8 @@ class _ReviewCard extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 'Too messy to split safely — shown exactly as written instead '
-                'of as a guessed amount. Edit the recipe to list them.',
+                'of as a guessed amount. Tap a line to fix it: rename, split it '
+                'into two, or drop it.',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: scheme.onErrorContainer.withValues(alpha: 0.85),
                   height: 1.35,
@@ -228,34 +242,260 @@ class _ReviewCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               for (final item in items)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Icon(
-                          Icons.edit_note_rounded,
-                          size: 16,
-                          color: scheme.onErrorContainer.withValues(alpha: 0.7),
+                InkWell(
+                  key: ValueKey('review_row_${item.id}'),
+                  onTap: () => _openEditor(context, item),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Icon(
+                            Icons.edit_note_rounded,
+                            size: 16,
+                            color:
+                                scheme.onErrorContainer.withValues(alpha: 0.7),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            item.name,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontStyle: FontStyle.italic,
+                              color: scheme.onErrorContainer,
+                            ),
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 18,
+                          color: scheme.onErrorContainer.withValues(alpha: 0.6),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// In-place fix for one flagged line.
+///
+/// The typed text runs through the *same* [IngredientParser] as a pasted
+/// ingredient, so whatever comes out is what a correct recipe line would have
+/// produced — quantity, unit, aisle and all. Multi-line input is parsed line
+/// by line, which is how one messy line becomes two honest rows.
+///
+/// If the words still resist parsing, the sheet stops pretending: the text is
+/// kept verbatim as one item and the user picks its aisle.
+class _ReviewEditorSheet extends StatefulWidget {
+  const _ReviewEditorSheet({required this.review, required this.app});
+
+  final GroceryItem review;
+  final AppController app;
+
+  @override
+  State<_ReviewEditorSheet> createState() => _ReviewEditorSheetState();
+}
+
+class _ReviewEditorSheetState extends State<_ReviewEditorSheet> {
+  late final TextEditingController _text =
+      TextEditingController(text: widget.review.name);
+  GroceryCategory _fallback = GroceryCategory.other;
+
+  @override
+  void initState() {
+    super.initState();
+    _text.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    _text.removeListener(_onChanged);
+    _text.dispose();
+    super.dispose();
+  }
+
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
+  List<String> get _lines => _text.text
+      .split('\n')
+      .map((l) => l.trim())
+      .where((l) => l.isNotEmpty)
+      .toList(growable: false);
+
+  List<GroceryItem> get _parsed => [
+        for (final line in _lines) ...widget.app.parser.itemsForLine(line),
+      ];
+
+  bool get _parsesCleanly =>
+      _parsed.isNotEmpty && _parsed.every((i) => !i.needsReview);
+
+  bool get _canSave => _text.text.trim().isNotEmpty;
+
+  /// What the list will actually receive on save.
+  List<GroceryItem> get _replacements {
+    if (_parsesCleanly) return _parsed;
+    // Not parseable even after editing: keep the user's own words as a single
+    // row in the aisle they picked, rather than losing the line.
+    final name = _text.text.trim().replaceAll(RegExp(r'\s+'), ' ');
+    return [
+      GroceryItem(
+        id: 'i${IngredientParser.contentId(name)}',
+        name: name,
+        category: _fallback,
+        quantity: '',
+        unit: '',
+        checked: false,
+      ),
+    ];
+  }
+
+  void _save() {
+    widget.app.resolveReviewRow(widget.review, _replacements);
+    Navigator.of(context).pop();
+  }
+
+  void _discard() {
+    widget.app.deleteItem(widget.review.id);
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Fix this line',
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'One ingredient per line — split a messy line by adding a break.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              key: const ValueKey('review_field'),
+              controller: _text,
+              autofocus: true,
+              minLines: 2,
+              maxLines: 4,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'e.g. 2 cups flour',
+              ),
+            ),
+            const SizedBox(height: 14),
+            if (_parsesCleanly) ...[
+              Text(
+                _parsed.length == 1
+                    ? 'This is how it will be filed:'
+                    : 'These ${_parsed.length} items will be added:',
+                style: theme.textTheme.labelLarge
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 8),
+              for (final item in _parsed)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      GlowEmoji(emoji: item.category.emoji, size: 16),
                       const SizedBox(width: 8),
+                      AmountPill(item: item),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           item.name,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontStyle: FontStyle.italic,
-                            color: scheme.onErrorContainer,
-                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Text(
+                        item.category.label,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: scheme.primary,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
                   ),
                 ),
+            ] else ...[
+              Text(
+                'Still not clear enough to sort. It will be added as you typed '
+                'it — pick which aisle it belongs in:',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurface.withValues(alpha: 0.7),
+                  height: 1.35,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final category in GroceryCategory.values)
+                    ChoiceChip(
+                      key: ValueKey('review_cat_${category.name}'),
+                      label: Text('${category.emoji} ${category.label}'),
+                      selected: _fallback == category,
+                      onSelected: (_) => setState(() => _fallback = category),
+                    ),
+                ],
+              ),
             ],
-          ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                TextButton.icon(
+                  key: const ValueKey('review_discard'),
+                  onPressed: _discard,
+                  icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                  label: const Text('Drop line'),
+                ),
+                const Spacer(),
+                FilledButton.icon(
+                  key: const ValueKey('review_save'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.terracotta,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: _canSave ? _save : null,
+                  icon: const Icon(Icons.check_rounded, size: 18),
+                  label: Text(_parsesCleanly ? 'Add to list' : 'Keep as one item'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

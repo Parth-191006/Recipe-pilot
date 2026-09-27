@@ -17,14 +17,33 @@ recipe into a tidy, aisle-by-aisle grocery list in one tap.
 
 ---
 
+> ### 🏷 One app, two names
+>
+> The app is **Recipe Pilot**: that is what the launcher, the splash screen and
+> every release asset say. This repository is called **`Pantry-pilot`** — the
+> project's original codename, and still the slug in every link below. There is
+> no second, renamed copy to go hunting for; the Dart package id is
+> `pantry_pilot` too, which is why upgrades install in place instead of
+> duplicating themselves.
+
 ## 📲 Install on your phone
 
 > **No Flutter, no Android Studio, no building.** Every push to `main` produces
 > a ready-to-install APK and attaches it to a permanent release.
 
 1. **[Download the latest APK →](https://github.com/Parth-191006/Pantry-pilot/releases/latest)**
-   (<https://github.com/Parth-191006/Pantry-pilot/releases/latest> — look for
-   `Recipe-Pilot-v*.apk` under *Assets*)
+   (<https://github.com/Parth-191006/Pantry-pilot/releases/latest>)
+
+   The release carries one file per CPU architecture — pick
+   **`Recipe-Pilot-v*-arm64-v8a.apk`** unless you know your phone is different.
+   That is every mainstream device made since roughly 2015, and it is roughly a
+   third the size of the old all-in-one download (~16 MB vs ~49 MB):
+
+   | File | Pick it when |
+   |---|---|
+   | `…-arm64-v8a.apk` | Any modern phone or tablet — **the default** |
+   | `…-armeabi-v7a.apk` | An older 32-bit device |
+   | `…-x86_64.apk` | Emulators and Intel-based tablets |
 2. Copy it to your phone (or just open the link on your phone) and tap it.
 3. Android will ask to allow installs from your browser — allow it once.
 4. **If Play Protect shows a "scanning" or "unknown app" prompt:** tap
@@ -40,12 +59,12 @@ Prefer to build it yourself? [Build from source](#-build-from-source) below.
 
 | | |
 |---|---|
-| 📖 **Library** | 10 built-in recipes across Italian, Mexican, Asian and Mediterranean cuisines — plus unlimited recipes of your own. |
-| 🧠 **Offline parser** | Type or paste `2 cups spinach, chopped` and the rule-based parser extracts amount, unit and name, merges synonyms (*green onions → Scallions*), and files it under 🥬 **Produce**. |
-| 🛒 **Smart list** | One tap converts any recipe into categorized aisle sections — Produce, Dairy & Eggs, Pantry, Spices… — with a live progress meter. Lines too messy to split safely ("2 cups flour and 1 cup sugar") land in a **Needs review** bucket, shown verbatim instead of guessed. |
+| 📖 **Library** | 10 built-in recipes across Italian, Mexican, Asian and Mediterranean cuisines — plus unlimited recipes of your own. Recipes you add get their **own shelf** at the top of the home screen, newest first, with the built-in catalogue shelved below them. |
+| 🧠 **Offline parser** | Type or paste `2 cups spinach, chopped` and the rule-based parser extracts amount, unit and name, merges synonyms (*green onions → Scallions*), and files it under 🥬 **Produce**. Quantities that measure the same thing add up across units too — `200 g` in one place plus `1 kg` in another becomes one **1.2 kg** row, not two. |
+| 🛒 **Smart list** | One tap converts any recipe into categorized aisle sections — Produce, Dairy & Eggs, Pantry, Spices… — with a live progress meter. Lines too messy to split safely ("2 cups flour and 1 cup sugar") land in a **Needs review** bucket, and every one of them is a **two-tap fix**: rewrite the line (split it by adding a line break) and it goes through the same parser into its real aisle, or drop it. |
 | ✅ **Tactile check-off** | Checkboxes pop with a confetti micro-burst, rows dim and strike through, and finishing the list triggers a full celebration. |
 | ➕ **Add-recipe studio** | Auto-suggested emoji, paste-a-block → split into rows, and a *live aisle preview* that runs the real parser as you type. |
-| ⏱ **Cook-along mode** | One step at a time in huge kitchen-readable text, with a per-step countdown ring (start / pause / resume), a stopwatch for untimed steps, and screen keep-awake so nothing sleeps mid-simmer. Add steps like “Simmer the sauce, 10 min” and the timer builds itself. |
+| ⏱ **Cook-along mode** | One step at a time in huge kitchen-readable text, with a per-step countdown ring (start / pause / resume), a stopwatch for untimed steps, and screen keep-awake so nothing sleeps mid-simmer. Add steps like “Simmer the sauce, 10 min” and the timer builds itself — then **adjust it as you cook** (+1 min, +5 min, −1 min, or hand the step back to the stopwatch), and give an untimed step a timer of your own. Your adjustments belong to that step and that cook; the saved recipe is never rewritten behind your back. |
 | 🌙 **Night kitchen** | Hand-tuned dark mode with soft glowing icons (toggleable), a cartoon kitchen hero that switches to a night scene, and aurora-lighted splash. |
 | 🔒 **Private by design** | Everything lives in Hive boxes on your device. Zero network calls, zero analytics, zero ads. |
 
@@ -104,18 +123,40 @@ minimalist leaf — as vector paths (app bar, splash, About, empty states).
 plain `zlib` + `struct`, so the home-screen icon and the in-app logo can never
 drift apart.
 
+**One parser, three callers.** The studio preview, the recipe → list
+conversion and the review-row editor all call the same [IngredientParser] —
+fixing a flagged line by hand runs the exact rules a pasted ingredient would,
+which is why the fix lands in the right aisle instead of an "Other" bucket.
+
 ## 🏗 Build from source
 
 ```bash
+git clone https://github.com/Parth-191006/Pantry-pilot.git
+cd Pantry-pilot
 flutter create . --platforms android   # one-time: generates android/
 flutter pub get
 python tool/generate_icons.py          # regenerate launcher art after logo edits
 python tool/patch_gradle_signing.py    # wire release signing (generated folder)
 dart run flutter_launcher_icons        # write launcher icons
 flutter run                            # device/emulator
-flutter build apk --release            # APK → build/app/outputs/flutter-apk/
-flutter test                           # logic + widget tests
+flutter build apk --release --split-per-abi   # one APK per ABI, ~16 MB each
+flutter build apk --release             # ...or one universal APK (~49 MB)
+flutter test                           # logic + golden corpus + widget tests
 ```
+
+CI runs the same three commands (`flutter analyze`, `flutter test`, then
+`flutter build apk --release --split-per-abi`) on every push to `main`, so the
+release assets and the test suite are always built from the same commit.
+
+### 🧪 Tests
+
+`test/ingredient_parser_test.dart` covers the audited parser patterns;
+`test/golden/ingredient_corpus.txt` is a **checked-in corpus of ~120 real
+recipe lines** (each annotated with the outcome it must produce) replayed by
+`test/ingredient_corpus_test.dart`, so a rule tweak that quietly breaks a line
+someone actually cooks from fails the build. Widget tests cover the grocery
+list, the review-row editor, the separate user-recipe shelf and the cook-along
+timers.
 
 ## 🧠 Offline-first design
 

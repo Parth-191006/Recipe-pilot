@@ -1,0 +1,159 @@
+# Golden corpus for the offline ingredient parser.
+#
+# One ingredient line per row, then the outcome the parser must produce,
+# separated by " | ". The test (test/ingredient_corpus_test.dart) reads this
+# file and asserts every row, so a rule change that quietly breaks a line
+# someone actually cooks from fails the build instead of shipping.
+#
+#   clean     -> exactly one item, understood confidently (never "needs review")
+#   clean:N   -> exactly N items, all understood
+#   review    -> at least one row is flagged "Needs review" (never guessed)
+#   review:N  -> N items, at least one flagged
+#   ignored   -> zero items (section headers and other recipe prose)
+#
+# Lines are written the way published recipes write them: mixed metric and
+# imperial, bullets, numbering, fractions, unicode glyphs, prep commas.
+# ---------------------------------- Produce ---------------------------------
+2 cups spinach, chopped | clean
+1 bunch fresh cilantro, stems trimmed | clean
+3 ripe bananas | clean
+1 large onion, finely diced | clean
+4 cloves garlic, minced | clean
+2-3 cloves garlic | clean
+1 tbsp ginger, grated | clean
+2 medium carrots, peeled and sliced | clean
+1 head broccoli | clean
+1 lb baby potatoes, halved | clean
+2 cups cherry tomatoes | clean
+1 lemon | clean
+Juice of 1 lemon | clean
+Zest of 1 orange | clean
+1 avocado, halved | clean
+2 red bell peppers, sliced | clean
+1 jalapeno, seeded and minced | clean
+3 scallions, thinly sliced | clean
+1 leek, white part only | clean
+200 g mushrooms, sliced | clean
+1 lb asparagus, trimmed | clean
+2 cups kale, stems removed | clean
+1 english cucumber | clean
+1 bunch parsley | clean
+1 sweet potato, cubed | clean
+2 cups frozen peas | clean
+1 cup frozen corn kernels | clean
+1 cup sweet corn | clean
+1 cup green beans, trimmed | clean
+1 cup snow peas | clean
+1 cup brussels sprouts, halved | clean
+2 ribs celery, chopped | clean
+1 cup olives, sliced | clean
+1 cup pumpkin puree | clean
+1 tsp onion powder | clean
+1 tsp garlic powder | clean
+1 cup white wine | clean
+1 cup warm water | clean
+1 tsp chopped walnuts | clean
+# ---------------------------------- Dairy -----------------------------------
+1 cup milk | clean
+4 tbsp unsalted butter, melted | clean
+2 eggs | clean
+1 cup heavy cream | clean
+1/2 cup grated parmesan | clean
+1 cup plain greek yogurt | clean
+8 oz cream cheese, softened | clean
+2 tbsp sour cream | clean
+1 cup cottage cheese | clean
+1 can evaporated milk | clean
+2 cups shredded mozzarella | clean
+# ----------------------------------- Meat -----------------------------------
+1 lb ground beef | clean
+2 chicken breasts, boneless and skinless | clean
+4 skinless, boneless chicken thighs, trimmed | clean
+500 g chicken thighs | clean
+6 slices bacon | clean
+1 lb shrimp, peeled and deveined | clean
+2 salmon fillets | clean
+1 lb ground turkey | clean
+1 lb pork shoulder, cubed | clean
+4 slices prosciutto | clean
+# ---------------------------------- Pantry ----------------------------------
+2 cups all-purpose flour | clean
+1 cup whole wheat flour | clean
+1 tsp baking powder | clean
+1/2 cup granulated sugar | clean
+1 cup brown sugar | clean
+2 tbsp olive oil | clean
+1 can coconut milk | clean
+300 ml coconut cream | clean
+1 (14 oz) can diced tomatoes | clean
+1 cup dried pasta | clean
+500 g basmati rice | clean
+1 tbsp soy sauce | clean
+1 tsp oyster sauce | clean
+2 tsp sesame oil | clean
+1 tbsp fish sauce | clean
+1 tsp sriracha | clean
+1 cup chicken broth | clean
+1 cup vegetable broth | clean
+2 cups chicken stock, divided | clean
+1 tbsp tomato paste | clean
+1 cup tomato sauce | clean
+2 tsp hot sauce | clean
+1 can chickpeas, drained and rinsed | clean
+1/2 cup rolled oats | clean
+1 tbsp honey | clean
+1/4 cup maple syrup | clean
+2 tbsp cornstarch | clean
+1 packet active dry yeast | clean
+1 cup breadcrumbs | clean
+1 cup panko breadcrumbs | clean
+2 tbsp tahini | clean
+2 tortillas | clean
+1 sheet puff pastry, thawed | clean
+1 cup salsa | clean
+3 tbsp ketchup | clean
+2 tsp mustard | clean
+1 cup cooked white rice | clean
+1/4 cup red wine vinegar | clean
+1 cup whole milk ricotta | clean
+1 block firm tofu, pressed | clean
+# ---------------------------------- Spices ----------------------------------
+1 tsp salt | clean
+Salt to taste | clean
+Freshly ground black pepper | clean
+1/2 tsp black pepper | clean
+1 tsp ground cumin | clean
+1 tsp ground cinnamon | clean
+2 tsp smoked paprika | clean
+1 tsp chili powder | clean
+1/2 tsp red pepper flakes | clean
+2 bay leaves | clean
+1 tsp dried oregano | clean
+1 tsp dried thyme | clean
+1 tsp vanilla extract | clean
+1 tbsp curry powder | clean
+1 tsp garam masala | clean
+1 pinch saffron threads | clean
+2 tsp nutritional yeast | clean
+# ----------------------------------- Other ----------------------------------
+500 g paneer | clean
+200 g paneer, cubed | clean
+2 tbsp capers | clean
+1 cup half-and-half | clean
+2 cups frozen mixed vegetables | clean
+# ----------------------------- Bullets and lists ----------------------------
+- 3 cloves garlic, minced | clean
+* 1 tbsp olive oil | clean
+1. 2 cups milk | clean
+2) 1 tsp salt | clean
+# -------------------------- Ignored recipe prose ---------------------------
+Ingredients | ignored
+For the sauce: | ignored
+Directions | ignored
+Method: | ignored
+# ------------------------- Honest degradation -----------------------------
+Salt and pepper, to taste | clean:2
+2 cups flour and 1 cup sugar | review
+1 cup flour, plus 2 tbsp for dusting | review:2
+1 whole chicken, 1.5 kg | review:2
+1 tsp salt, or more to taste | clean
