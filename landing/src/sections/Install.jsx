@@ -5,17 +5,17 @@ const STEPS = [
   {
     n: '1',
     title: 'Download it on the phone you want it on',
-    body: `Tap the button — the file lands in your Downloads folder. It is about ${DOWNLOAD_SIZE} for a modern phone, because each download only carries the engine its own CPU needs.`,
+    body: `Tap the button; the file lands in your Downloads folder. About ${DOWNLOAD_SIZE}, because each download carries only the engine its own CPU needs.`,
   },
   {
     n: '2',
     title: 'Open it, and let Android trust this one source',
-    body: 'Android will say it cannot verify the app. That is simply what it says about anything not installed from the Play Store. Tap the prompt, allow installs from this browser, then tap Install.',
+    body: 'Android cannot verify it — that is what it says about anything not from the Play Store. Allow installs from this browser, then tap Install.',
   },
   {
     n: '3',
     title: 'If Play Protect offers to scan it, tap "Install anyway"',
-    body: 'More details → Install anyway. Recipe Pilot has no ads, no tracking and makes no network calls, so there is nothing for a scan to find. It is built from public source by GitHub Actions, one tap away if you want to look.',
+    body: 'More details → Install anyway. There is nothing for a scan to find: no ads, no tracking, no network calls, and the whole build runs in public on GitHub Actions.',
   },
 ];
 
@@ -36,7 +36,7 @@ export default function Install() {
   return (
     <section
       id="install"
-      className="relative mt-20 bg-cream-100 pt-20 pb-24 text-night-900 sm:mt-28 sm:pt-28 sm:pb-28"
+      className="doodle-cream relative mt-14 bg-cream-100 pt-14 pb-20 text-night-900 sm:mt-24 sm:pt-24 sm:pb-24"
     >
       <div
         aria-hidden="true"
@@ -52,18 +52,17 @@ export default function Install() {
             <h2 className="mt-5 text-[2.05rem] leading-[1.08] font-semibold text-night-950 sm:text-[2.6rem]">
               One minute, and Android grumbles exactly once.
             </h2>
-            <p className="mt-5 leading-relaxed text-night-800/80">
-              Recipe Pilot is not on the Play Store — it is a free, open-source
-              APK you install yourself. Nothing is hidden and nothing is asked of
-              you, but the phone will double-check before it lets you in.
+            <p className="mt-4 leading-relaxed text-night-800/80 sm:mt-5">
+              Not on the Play Store: a free, open-source APK you install yourself.
+              The phone will double-check once before it lets you in.
             </p>
 
-            <div className="mt-8">
+            <div className="mt-6 sm:mt-8">
               <DownloadButton />
             </div>
 
-            <p className="mt-5 text-sm text-night-800/70">
-              Prefer to build it yourself?{' '}
+            <p className="mt-4 text-sm text-night-800/70 sm:mt-5">
+              Build it yourself?{' '}
               <a
                 className="font-semibold text-ember-600 underline decoration-ember-600/40 underline-offset-4 transition hover:text-ember-700"
                 href={`${REPO_URL}#-build-from-source`}
@@ -76,7 +75,7 @@ export default function Install() {
             </p>
           </div>
 
-          <ol className="space-y-9 lg:col-span-6 lg:col-start-7 lg:pt-2">
+          <ol className="space-y-6 sm:space-y-8 lg:col-span-6 lg:col-start-7 lg:pt-2">
             {STEPS.map((step) => (
               <li key={step.n} className="flex gap-5">
                 <span className="display mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-full bg-herb-600 text-lg font-semibold text-cream-50">
@@ -101,9 +100,8 @@ export default function Install() {
                   Updates install straight over the top
                 </h3>
                 <p className="mt-2 text-[0.95rem] leading-relaxed text-night-800/80">
-                  New versions replace the old app in place — your recipes and
-                  lists survive, and there is never a second copy sitting on your
-                  home screen.
+                  New versions replace the old app in place — recipes and lists
+                  survive, with no second copy left on the home screen.
                 </p>
               </div>
             </li>

@@ -36,12 +36,10 @@ export default function App() {
         <Closing />
       </main>
       <Footer />
-      {/* Two fixed, whole-page textures: cartoon starlight beneath the grain.
-          Neither intercepts a pointer, and neither is a section background, so
-          they read straight through the dark planes and vanish over the cream
-          band. */}
+      {/* One fixed, whole-page overlay: cartoon starlight. It intercepts no
+          pointer and is not a section background, so it reads straight through
+          the green planes and all but vanishes over the cream band. */}
       <div className="starfield" aria-hidden="true" />
-      <div className="grain" aria-hidden="true" />
     </div>
   );
 }

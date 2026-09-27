@@ -4,10 +4,10 @@
    Design tokens — "warm kitchen at night", led by herb green
    --------------------------------------------------------------------------
    Colours are lifted from the app itself: the herb green is its
-   checkmark/progress green and now leads the page, the ember is its
-   terracotta CTA and is now the rare warm accent, and the night stack is the
-   dark-theme surface (warm charcoal with a green cast, never a neutral
-   grey). Three core hues + warm neutrals, no gradients between them.
+   checkmark/progress green and leads the page, the ember is its terracotta CTA
+   and is the rare warm accent, and the night stack is a *green*-black surface
+   ramp rather than a charcoal one. Three core hues + warm neutrals, no
+   gradients between them.
 
    Who leads, and why:
    • Herb green owns every structural surface — the download button, the
@@ -29,19 +29,23 @@
    There are deliberately no glow utilities left in this file.
    ========================================================================== */
 @theme {
-  --color-night-950: #0a0f0d; /* page base */
-  --color-night-900: #0f1613; /* second plane */
-  --color-night-850: #131c18;
-  --color-night-800: #18231d; /* cards */
-  --color-night-700: #21302a; /* raised surfaces, bezels */
-  --color-night-600: #2c3f36; /* hairlines on dark */
+  /* The surface ramp is green, not grey-black. It used to be a charcoal with a
+     green *cast* — about 31% saturation — which read as a dark page that
+     happened to use green accents. These are 51–60%, so the page reads as the
+     scene's world instead. Luminance is unchanged level for level, which means
+     every text contrast measured against it is unchanged too. */
+  --color-night-950: #060f08; /* page base, and the sky's bottom stop */
+  --color-night-900: #0a160c; /* second plane */
+  --color-night-850: #0d1c0f;
+  --color-night-800: #102313; /* cards */
+  --color-night-700: #17301a; /* raised surfaces, bezels */
 
   --color-cream-50: #fdfaf3;
   --color-cream-100: #f5eee1; /* body text on dark */
   --color-cream-200: #e7dcc9;
   --color-cream-300: #cfc4ae;
   --color-cream-400: #a89e8a; /* muted text */
-  --color-cream-500: #847b69; /* quietest text */
+  --color-cream-500: #847b69; /* decorations only — never text (3.4–4.6:1) */
 
   --color-ember-300: #ffb38a; /* warm accent type — timer chips */
   --color-ember-400: #ff8a5b;
@@ -178,16 +182,23 @@
   }
 }
 
-/* A whisper of paper grain over the whole page. Costs one tiny SVG and no
- * blend modes (blend modes on a fixed full-screen layer are a scroll-perf
- * trap on phones). */
-@utility grain {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+/* Sparse kitchen doodles tiled across the flat panels: a sparkle, a leaf, a
+ * streamer and two dots. This is the page's only texture, and it replaced the
+ * photographic paper grain that used to sit over everything — a cartoon mark
+ * belongs on a flat cartoon surface, where noise does not. Applied only to
+ * *bounded* surfaces (a card, or a panel with an edge), so a tile's phase never
+ * has to line up with a neighbouring surface, and no fixed full-screen layer is
+ * needed for it. */
+@utility doodle-night {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg stroke='%23a8dc94' stroke-width='1.7' stroke-linecap='round' fill='none'%3E%3Cpath d='M30 44h11M35.5 38.5v11' stroke-opacity='.15'/%3E%3Cpath d='M142 30q9-12 19 0q-9 12-19 0' stroke-opacity='.12'/%3E%3Cpath d='M143 30h17' stroke-opacity='.06'/%3E%3Cpath d='M74 176h10M79 171v10' stroke-opacity='.1'/%3E%3Cpath d='M196 190q7-9 14-2' stroke-opacity='.09'/%3E%3C/g%3E%3Cg fill='%23a8dc94'%3E%3Ccircle cx='204' cy='118' r='2.4' fill-opacity='.12'/%3E%3Ccircle cx='118' cy='210' r='1.8' fill-opacity='.1'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* The same marks on the one light band, in the field green instead — cream
+ * keeps a texture of its own rather than being the only flat surface left. */
+@utility doodle-cream {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg stroke='%232f5c2b' stroke-width='1.7' stroke-linecap='round' fill='none'%3E%3Cpath d='M30 44h11M35.5 38.5v11' stroke-opacity='.15'/%3E%3Cpath d='M142 30q9-12 19 0q-9 12-19 0' stroke-opacity='.12'/%3E%3Cpath d='M143 30h17' stroke-opacity='.06'/%3E%3Cpath d='M74 176h10M79 171v10' stroke-opacity='.1'/%3E%3Cpath d='M196 190q7-9 14-2' stroke-opacity='.09'/%3E%3C/g%3E%3Cg fill='%232f5c2b'%3E%3Ccircle cx='204' cy='118' r='2.4' fill-opacity='.12'/%3E%3Ccircle cx='118' cy='210' r='1.8' fill-opacity='.1'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
 }
 
 /* The page's sky: the scene in CartoonScene.jsx paints no sky of its own, so
@@ -204,9 +215,9 @@
   );
 }
 
-/* Sparse cartoon sparkles, one composited fixed layer like the grain. Drawn in
- * white so they read on the night planes and all but vanish over the cream
- * band — no second colour to keep in sync. */
+/* Sparse cartoon sparkles: one composited fixed layer, the only full-screen
+ * overlay left. Drawn in white so they read on the night planes and all but
+ * vanish over the cream band — no second colour to keep in sync. */
 @utility starfield {
   position: fixed;
   inset: 0;
@@ -215,18 +226,6 @@
   opacity: 0.22;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg stroke='%23ffffff' stroke-width='2' stroke-linecap='round' fill='none'%3E%3Cpath d='M41 44h14M48 37v14' stroke-opacity='.5'/%3E%3Cpath d='M163 86h10M168 81v10' stroke-opacity='.38'/%3E%3C/g%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='120' cy='20' r='1.6' fill-opacity='.4'/%3E%3Ccircle cx='24' cy='150' r='1.3' fill-opacity='.32'/%3E%3Ccircle cx='186' cy='180' r='1.5' fill-opacity='.36'/%3E%3C/g%3E%3C/svg%3E");
   background-repeat: repeat;
-}
-
-/* Hairline rules that read as hand-drawn rather than CSS-default. */
-@utility rule-hair {
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgb(207 196 174 / 0.28) 12%,
-    rgb(207 196 174 / 0.28) 88%,
-    transparent
-  );
-  height: 1px;
 }
 
 /* Respect people who don't want motion: everything static, nothing hidden. */

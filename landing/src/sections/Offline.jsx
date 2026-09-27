@@ -17,7 +17,7 @@ export default function Offline() {
   return (
     <section
       id="offline"
-      className="relative mt-20 bg-night-900 pt-20 pb-28 sm:mt-28 sm:pt-28 sm:pb-36"
+      className="doodle-night relative mt-14 bg-night-900 pt-14 pb-20 sm:mt-24 sm:pt-24 sm:pb-28"
     >
       <div
         aria-hidden="true"
@@ -36,30 +36,25 @@ export default function Offline() {
                 A recipe app has no business asking you to sign in.
               </h2>
 
-              <div className="mt-7 space-y-5 text-[1.04rem] leading-relaxed text-cream-300 sm:text-lg">
-                <p>
-                  There is no login, no cloud sync, no analytics and no ads.
-                  Every recipe you type is written to a small database inside the
-                  app, on the device in your hand — so the list keeps working on a
-                  plane, in the basement of a supermarket with no signal, or on
-                  the last 3% of battery.
-                </p>
-                <p>
-                  Nothing gets uploaded, because there is no server to upload it
-                  to. That is the entire design, and it is why the app is small,
-                  instant, and genuinely nobody else's business.
-                </p>
-              </div>
+              {/* One paragraph, not two. The second one used to restate the
+                  first at greater length; what it actually added was the last
+                  sentence, which is now the last sentence here. */}
+              <p className="mt-6 text-[1.02rem] leading-relaxed text-cream-300 sm:text-lg">
+                There is no login, no cloud sync, no analytics and no ads. Every
+                recipe goes into a database on the phone in your hand — so the
+                list still works on a plane, or on the last 3% of battery.
+                Nothing is uploaded, because there is no server to upload it to.
+              </p>
             </FadeContent>
           </div>
 
           <div className="lg:col-span-5 lg:pt-3">
-            <dl className="grid gap-8 border-t border-herb-400/20 pt-9 sm:grid-cols-3 lg:grid-cols-1">
+            <dl className="grid gap-6 border-t border-herb-400/20 pt-8 sm:grid-cols-3 sm:gap-8 lg:grid-cols-1">
               {PROOF.map(([value, label]) => (
                 // flex-col-reverse: the number reads first on screen while the
                 // markup keeps the correct <dt> then <dd> order.
                 <div key={label} className="flex flex-col-reverse gap-1.5">
-                  <dt className="text-[0.7rem] font-semibold tracking-[0.16em] text-cream-500 uppercase">
+                  <dt className="text-[0.7rem] font-semibold tracking-[0.16em] text-cream-400 uppercase">
                     {label}
                   </dt>
                   <dd className="display text-5xl leading-none font-semibold text-herb-300">

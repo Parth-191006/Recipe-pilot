@@ -13,7 +13,8 @@
  *
  * `rotate` exists so the mockups are angled and offset rather than parked flat
  * and centred — the point of the layout is that it does not look like a
- * template.
+ * template. There is no caption prop either: the captions restated the row
+ * headings they sat under, and every screenshot is described by its `alt`.
  *
  * There is no `glow` prop any more, and no halo behind the device: against the
  * flat cartoon backdrop a soft bloom was the one element that looked pasted on.
@@ -25,7 +26,6 @@ export default function PhoneFrame({
   rotate = 0,
   width = 'w-60',
   className = '',
-  caption,
 }) {
   return (
     <figure className={`relative w-fit ${className}`}>
@@ -49,11 +49,6 @@ export default function PhoneFrame({
         </div>
       </div>
 
-      {caption ? (
-        <figcaption className="mt-4 max-w-[16rem] text-sm leading-snug text-cream-400">
-          {caption}
-        </figcaption>
-      ) : null}
     </figure>
   );
 }

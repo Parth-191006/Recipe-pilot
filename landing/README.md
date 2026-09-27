@@ -28,8 +28,9 @@ below it).
 | Layout break | **Asymmetric hero** — 7 of 12 columns of type, 5 of angled phone. The mockups are rotated (3.5° / −7°) and pushed past the right gutter instead of flat and centred. | The brief's single biggest red flag was "centred hero + three icon cards". Nothing on this page is a centred hero, and no section is a row of identical cards. |
 | Recurring edge | One **diagonal seam** motif, used on the entry to the "why offline" plane, the cream install band, and the final CTA. | Organic, kitchen-ish edge instead of three stacked rectangles — and it costs one `<div>` with a `clip-path`. |
 | Type | **Fraunces** (display; a soft, high-contrast serif with real warmth at large optical sizes) + **Karla** (body; plain, humanist, very readable). Two fonts, no third. | Fraunces reads like a cookbook rather than a dev tool; Karla stays out of the way. No Inter, no system-ui-everywhere. |
-| Palette | **Herb green leads**: the CTA fills with a deep leaf green `#3a7d2e`, and accents use the app's mint `#a8dc94`. **Ember** `#ea5a2b` (the app's CTA terracotta) is now the rare warm accent; the **night** stack (`#0a0f0d → #21302a`, warm charcoal with a green cast) is unchanged. Cream `#fdfaf3` for the one light band. | "Warm kitchen at night", lifted from the product instead of invented — and green is the app's own checkmark/progress colour, so the page leads with the product's *success* state rather than with a second warm hue. No purple→blue gradient anywhere. |
-| Backdrop | The app's **own cartoon kitchen** — moon, hills, steaming pot, vegetable row — re-drawn as flat SVG (`src/components/CartoonScene.jsx`), over a two-stop sky gradient. | It is the motif the product already owns (`_CartoonKitchenPainter`), so the page and the app look like one thing instead of two. Flat fills, no blooms: a glow behind the content reads as neither a light nor an illustration. |
+| Palette | **Herb green leads**: the CTA fills with a deep leaf green `#3a7d2e`, and accents use the app's mint `#a8dc94`. **Ember** `#ea5a2b` (the app's CTA terracotta) is the rare warm accent. The dark surfaces are a **green** ramp — `#060f08 → #17301a`, hue 127–133° at 51–60% saturation, up from 31% — so the page is the scene's world rather than a dark page with green accents on it. Cream `#fdfaf3` for the one light band. | "Warm kitchen at night", lifted from the product instead of invented — and green is the app's own checkmark/progress colour, so the page leads with the product's *success* state rather than with a second warm hue. The ramp's luminance is unchanged level for level, so greening it cost nothing in contrast. No purple→blue gradient anywhere. |
+| Copy budget | **One paragraph per feature, no screenshot captions, no restatement.** The offline section's two paragraphs became one; three feature captions were deleted; the install steps say one thing each. | The first draft explained itself twice and captioned every screenshot with what the row's own heading already said. Measured at 390px: **−22% visible text** and **−15% page height** (−1563px), with nothing removed that a reader needs. |
+| Backdrop | The app's **own cartoon kitchen** — moon, hills, steaming pot, vegetable row — re-drawn as flat SVG (`src/components/CartoonScene.jsx`), over a two-stop sky gradient, with sparse kitchen doodles tiled onto the flat panels. | It is the motif the product already owns (`_CartoonKitchenPainter`), so the page and the app look like one thing instead of two. Flat fills, no blooms: a glow behind the content reads as neither a light nor an illustration. |
 | Imagery | The **real screenshots** (in phone frames, angled, lifted off the sky by their bezel and shadow), plus one CSS re-creation of the confetti/finish moment. | No stock photos, no AI blobs. The finish moment is a particle rain, so it is labelled as a re-creation rather than faked with a still. |
 | Motion | **One** React Bits component, used three times: the hero entrance and two scroll reveals. | One signature moment beats five competing effects. |
 
@@ -93,9 +94,34 @@ content. The moon is likewise softened from the app's near-white `#f5f5f5` to
 `#e9eef0`, because a backdrop moon should not out-shout what is in front of
 it.
 
-Two fixed, whole-page textures sit next to the paper grain: a `starfield` of
-sparse sparkles (one tiled SVG, drawn in white so it reads on the night planes
-and all but vanishes over the cream band) and the grain that was already there.
+The page keeps exactly one texture and one full-screen overlay: a `starfield` of
+sparse sparkles, tiled, drawn in white so it reads on the green planes and all
+but vanishes over the cream band. The photographic paper grain that used to sit
+over everything is gone — a cartoon mark belongs on a flat cartoon surface,
+where noise does not — and `doodle-night` / `doodle-cream` replaced it. Those
+tile a sparkle, a leaf, a streamer and two dots onto the flat panels, and are
+applied only to *bounded* surfaces (a card, or a panel with an edge), so a
+tile's phase never has to line up with a neighbouring surface and nothing needs
+a fixed full-screen layer.
+
+### The copy cut
+
+The page opened far denser than what it actually has to say. Three things went,
+and none of them were facts:
+
+- **The second paragraph of every feature.** Each row had two, and the second
+  restated the first at greater length. One paragraph per row now.
+- **Every screenshot caption.** They described the screenshot that the row's own
+  heading had already described. The `alt` text still describes all of them for
+  screen readers, which is what the caption was never doing.
+- **The offline section's second paragraph**, except its last sentence — the one
+  that actually added something (*nothing is uploaded, because there is no
+  server to upload it to*), which is now the end of the first.
+
+Then a mobile pass: every section's padding came down a step at the small
+breakpoint, the hero's headline and grid gaps tightened, and the install steps
+lost their extra spacing. Measured at 390px with every image loaded, before and
+after: page height 10320px → 8757px, visible text 5307 → 4132 characters.
 
 ### The React Bits component: `FadeContent`
 
@@ -179,7 +205,15 @@ nothing depends on a redirect.)
 ## Notes and caveats
 
 - **The page is dark-only**, and says so to the browser (`color-scheme: dark` +
-  `theme-color`). That matches the app's signature night-kitchen look.
+  `theme-color`, which follows the sky's top colour). That matches the app's
+  signature night-kitchen look.
+- **`cream-500` is decoration only — never text.** It used to set the quietest
+  labels (the stat captions, the row indices, the struck-through list items) at
+  11–14px, where it measured 3.4–4.6:1 against the surfaces it sat on, under AA.
+  Those are `cream-400` now (6.2–7.3:1 on the same surfaces) and the contrast
+  audit comes back with zero failures across the whole page. `cream-500`
+  survives only as underline colours, and the rule is written next to the token
+  in `index.css`.
 - **No analytics, no cookies.** The only third-party request is the two Google
   Fonts files, which the footer says out loud. If you would rather have zero
   third-party requests, self-host the two fonts in `public/fonts/` and swap the
@@ -191,7 +225,7 @@ nothing depends on a redirect.)
 - **Deploying it:** `npm run build` produces a fully static `landing/dist/`.
   `vite.config.js` sets `base: './'`, so it also works from a subdirectory —
   GitHub Pages project sites (`username.github.io/Recipe-pilot/`) included.
-- **Bundle size:** ~7 KB gzipped CSS and ~121 KB gzipped JS, of which roughly a
+- **Bundle size:** ~7.8 KB gzipped CSS and ~122 KB gzipped JS, of which roughly a
   quarter is GSAP. If you ever want it leaner, replacing `FadeContent` with a
   small IntersectionObserver + CSS transition drops GSAP entirely and cuts most
   of that JS — at the cost of the one React Bits component the brief asked for.

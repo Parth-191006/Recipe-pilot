@@ -15,7 +15,7 @@ import { DOWNLOAD_SIZE, LICENSE_URL } from '../site.js';
  */
 export default function Hero() {
   return (
-    <section className="relative pt-12 pb-44 sm:pt-16 sm:pb-56 lg:pt-20 lg:pb-64">
+    <section className="relative pt-8 pb-40 sm:pt-14 sm:pb-48 lg:pt-20 lg:pb-64">
       {/* The backdrop, anchored to the bottom of the section — and the bottom
           padding above is sized to clear it, so no type or phone ever lands on
           the hills. The scene paints no sky of its own, so the band's top edge
@@ -23,7 +23,7 @@ export default function Hero() {
       <KitchenLandscape className="pointer-events-none absolute bottom-0 left-0 block h-32 w-full sm:h-44 lg:h-52" />
 
       <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
-        <div className="grid items-center gap-16 lg:grid-cols-12 lg:gap-6">
+        <div className="grid items-center gap-10 sm:gap-14 lg:grid-cols-12 lg:gap-6">
           <FadeContent
             className="lg:col-span-7 lg:pr-4"
             duration={950}
@@ -37,7 +37,7 @@ export default function Hero() {
               100% offline · no account, ever
             </p>
 
-            <h1 className="mt-7 text-[2.55rem] leading-[1.04] font-semibold text-cream-50 sm:text-[3.4rem] lg:text-[4.1rem]">
+            <h1 className="mt-6 text-[2.3rem] leading-[1.05] font-semibold text-cream-50 sm:mt-7 sm:text-[3.2rem] lg:text-[4rem]">
               Paste a recipe.
               <br />
               Get the{' '}
@@ -47,9 +47,8 @@ export default function Hero() {
               .
             </h1>
 
-            <p className="mt-7 max-w-xl text-[1.06rem] leading-relaxed text-cream-300 sm:text-lg">
-              Recipe Pilot reads ingredients the messy way recipes are actually
-              written —{' '}
+            <p className="mt-5 max-w-xl text-[1.02rem] leading-relaxed text-cream-300 sm:mt-6 sm:text-lg">
+              Recipe Pilot reads ingredients the way they are actually written —{' '}
               <span className="rounded bg-night-800 px-1.5 py-0.5 font-medium text-cream-100">
                 1 (14 oz) can diced tomatoes
               </span>
@@ -57,11 +56,10 @@ export default function Hero() {
               <span className="rounded bg-night-800 px-1.5 py-0.5 font-medium text-cream-100">
                 2–3 cloves garlic
               </span>{' '}
-              — sorts every line into the right aisle, and keeps the whole thing
-              on your phone. Offline, private, done before the kettle boils.
+              — then sorts them by aisle onto a list that lives on your phone.
             </p>
 
-            <div className="mt-9 flex flex-wrap items-center gap-4">
+            <div className="mt-7 flex flex-wrap items-center gap-4 sm:mt-9">
               <DownloadButton />
               <a
                 href="#screens"
@@ -87,7 +85,7 @@ export default function Hero() {
             {/* cream-400, not cream-500: this line sits on the sky, which is
                 lighter than the dark planes, and cream-500 lands at 3.7:1
                 there. cream-400 is 5.8:1. */}
-            <p className="mt-6 text-sm text-cream-400">
+            <p className="mt-5 text-sm text-cream-400 sm:mt-6">
               Latest release · {DOWNLOAD_SIZE} · Free &amp;{' '}
               <a
                 className="text-cream-400 underline decoration-cream-500/50 underline-offset-4 transition hover:text-cream-200"
