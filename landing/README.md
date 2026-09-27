@@ -27,9 +27,32 @@ config, no `tailwind.config.js`; every design token lives in
 | Layout break | **Asymmetric hero** — 7 of 12 columns of type, 5 of angled phone. The mockups are rotated (3.5° / −7°) and pushed past the right gutter instead of flat and centred. | The brief's single biggest red flag was "centred hero + three icon cards". Nothing on this page is a centred hero, and no section is a row of identical cards. |
 | Recurring edge | One **diagonal seam** motif, used on the entry to the "why offline" plane, the cream install band, and the final CTA. | Organic, kitchen-ish edge instead of three stacked rectangles — and it costs one `<div>` with a `clip-path`. |
 | Type | **Fraunces** (display; a soft, high-contrast serif with real warmth at large optical sizes) + **Karla** (body; plain, humanist, very readable). Two fonts, no third. | Fraunces reads like a cookbook rather than a dev tool; Karla stays out of the way. No Inter, no system-ui-everywhere. |
-| Palette | Three hues taken from the app itself: **ember** `#ea5a2b` (the app's CTA terracotta), **herb** `#a8dc94` (its checkmark/progress green), and a **night** stack (`#0a0f0d → #21302a`, warm charcoal with a green cast). Cream `#fdfaf3` for the one light band. | "Warm kitchen at night", lifted from the product instead of invented. No purple→blue gradient anywhere. |
+| Palette | **Herb green leads**: the CTA fills with a deep leaf green `#3a7d2e`, and accents use the app's mint `#a8dc94`. **Ember** `#ea5a2b` (the app's CTA terracotta) is now the rare warm accent; the **night** stack (`#0a0f0d → #21302a`, warm charcoal with a green cast) is unchanged. Cream `#fdfaf3` for the one light band. | "Warm kitchen at night", lifted from the product instead of invented — and green is the app's own checkmark/progress colour, so the page leads with the product's *success* state rather than with a second warm hue. No purple→blue gradient anywhere. |
 | Imagery | The **real screenshots** (in phone frames, angled, with soft radial glows), plus one CSS re-creation of the confetti/finish moment. | No stock photos, no AI blobs. The finish moment is a particle rain, so it is labelled as a re-creation rather than faked with a still. |
 | Motion | **One** React Bits component, used three times: the hero entrance and two scroll reveals. | One signature moment beats five competing effects. |
+
+### Who leads, and where ember still lives
+
+Green owns every structural surface: the download button, the hero's accent
+word, all five section eyebrows, the feature-row kickers, chips, bullets, the
+progress meter, `::selection` and the focus ring. `herb-600` (`#3a7d2e`) had to
+be added, because the ramp stopped at mint — far too light to carry a white
+label (1.9:1). The new step stays in the family (herb-400 is 103°, herb-500 is
+116°, herb-600 is 111°), and white on it is 5.06:1.
+
+Ember is deliberately **not** deleted. It appears exactly four times, each in a
+"heat or mild friction" slot, so the warmth still means something:
+
+1. the hero's small warm rim light, opposite the page's big green light source;
+2. the *Cook along* phone's glow;
+3. that row's `+1 min / +5 min / stopwatch` timer chips;
+4. the install band's kicker and build-from-source link — the one warm-on-cream
+   moment, in the section that is literally about the annoying part.
+
+Anything that wants a warm hue outside those four slots is wrong; add a green
+step instead. Both light-band ember values were darkened for contrast
+(`ember-600` `#c9451c → #b4401a`, 4.18:1 → 4.93:1 on cream, with `ember-700`
+`#8f2f0e` for the hover, which darkens rather than lightens).
 
 ### The React Bits component: `FadeContent`
 

@@ -26,6 +26,11 @@ const STEPS = [
  * it is the page's one "and here is the slightly annoying bit" moment, and it
  * should read as help, not as a security warning. The tone is set by the
  * heading and by keeping every step in the visitor's own voice.
+ *
+ * It is also ember's fourth and last accent appearance: the terracotta kicker
+ * and the build-from-source link are the page's one warm-on-cream moment, which
+ * is exactly the "slightly annoying bit" this section is about. Everything else
+ * here — the numbered discs, the tick, the button — leads green.
  */
 export default function Install() {
   return (
@@ -60,7 +65,7 @@ export default function Install() {
             <p className="mt-5 text-sm text-night-800/70">
               Prefer to build it yourself?{' '}
               <a
-                className="font-semibold text-ember-600 underline decoration-ember-600/40 underline-offset-4 transition hover:text-ember-500"
+                className="font-semibold text-ember-600 underline decoration-ember-600/40 underline-offset-4 transition hover:text-ember-700"
                 href={`${REPO_URL}#-build-from-source`}
                 target="_blank"
                 rel="noreferrer"
@@ -74,7 +79,7 @@ export default function Install() {
           <ol className="space-y-9 lg:col-span-6 lg:col-start-7 lg:pt-2">
             {STEPS.map((step) => (
               <li key={step.n} className="flex gap-5">
-                <span className="display mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-full bg-night-950 text-lg font-semibold text-herb-300">
+                <span className="display mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-full bg-herb-600 text-lg font-semibold text-cream-50">
                   {step.n}
                 </span>
                 <div className="border-b border-night-900/12 pb-7">

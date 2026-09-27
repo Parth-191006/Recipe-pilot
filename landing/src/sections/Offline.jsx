@@ -27,7 +27,7 @@ export default function Offline() {
       <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
         <div className="grid gap-14 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-7">
-            <p className="text-[0.68rem] font-bold tracking-[0.18em] text-ember-300 uppercase">
+            <p className="text-[0.68rem] font-bold tracking-[0.18em] text-herb-300 uppercase">
               The part that actually matters
             </p>
 
@@ -54,7 +54,7 @@ export default function Offline() {
           </div>
 
           <div className="lg:col-span-5 lg:pt-3">
-            <dl className="grid gap-8 border-t border-cream-300/15 pt-9 sm:grid-cols-3 lg:grid-cols-1">
+            <dl className="grid gap-8 border-t border-herb-400/20 pt-9 sm:grid-cols-3 lg:grid-cols-1">
               {PROOF.map(([value, label]) => (
                 // flex-col-reverse: the number reads first on screen while the
                 // markup keeps the correct <dt> then <dd> order.

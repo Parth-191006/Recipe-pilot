@@ -26,7 +26,7 @@ export default function Closing() {
 
         <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
           <div className="rounded-[2rem] border border-white/6 bg-night-900/70 p-7 sm:p-10">
-            <p className="display text-sm font-semibold tracking-[0.14em] text-ember-300 uppercase">
+            <p className="display text-sm font-semibold tracking-[0.14em] text-herb-300 uppercase">
               In the latest build
             </p>
             <ul className="mt-6 grid gap-3.5 text-[0.95rem] leading-relaxed text-cream-300 sm:grid-cols-2 sm:gap-x-10">
@@ -47,7 +47,7 @@ export default function Closing() {
       <section id="download" className="relative pt-24 pb-20 sm:pt-32 sm:pb-24">
         <div
           aria-hidden="true"
-          className="glow-ember pointer-events-none absolute top-10 left-1/2 h-[30rem] w-[46rem] -translate-x-1/2 opacity-60"
+          className="glow-herb-deep pointer-events-none absolute top-10 left-1/2 h-[30rem] w-[46rem] -translate-x-1/2 opacity-60"
         />
         <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
           <FadeContent

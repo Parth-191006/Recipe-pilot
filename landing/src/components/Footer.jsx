@@ -19,7 +19,7 @@ export default function Footer() {
 
         <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-cream-400">
           <a
-            className="transition hover:text-cream-100"
+            className="transition hover:text-herb-300"
             href={REPO_URL}
             target="_blank"
             rel="noreferrer"
@@ -27,7 +27,7 @@ export default function Footer() {
             GitHub
           </a>
           <a
-            className="transition hover:text-cream-100"
+            className="transition hover:text-herb-300"
             href={ALL_RELEASES_URL}
             target="_blank"
             rel="noreferrer"
@@ -35,7 +35,7 @@ export default function Footer() {
             Releases
           </a>
           <a
-            className="transition hover:text-cream-100"
+            className="transition hover:text-herb-300"
             href={LICENSE_URL}
             target="_blank"
             rel="noreferrer"

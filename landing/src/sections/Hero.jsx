@@ -15,14 +15,16 @@ import { DOWNLOAD_SIZE, LICENSE_URL } from '../site.js';
 export default function Hero() {
   return (
     <section className="relative pt-12 pb-16 sm:pt-16 sm:pb-24 lg:pt-20">
-      {/* Two warm light sources, no blur filters — just soft radial gradients. */}
+      {/* Two light sources, no blur filters — just soft radial gradients. The
+          green one is now the big one, behind the headline; the warm rim is the
+          first of ember's four accent appearances. */}
       <div
         aria-hidden="true"
-        className="glow-ember pointer-events-none absolute -top-56 -right-40 h-[46rem] w-[46rem] opacity-80"
+        className="glow-herb pointer-events-none absolute -top-48 -left-44 h-[46rem] w-[46rem] opacity-85"
       />
       <div
         aria-hidden="true"
-        className="glow-herb pointer-events-none absolute top-32 -left-52 h-[34rem] w-[34rem] opacity-60"
+        className="glow-ember pointer-events-none absolute top-24 -right-32 h-[26rem] w-[26rem] opacity-40"
       />
 
       <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
@@ -44,7 +46,7 @@ export default function Hero() {
               Paste a recipe.
               <br />
               Get the{' '}
-              <span className="text-ember-300 italic underline decoration-ember-500/70 decoration-[3px] underline-offset-[10px]">
+              <span className="text-herb-300 italic underline decoration-herb-400/70 decoration-[3px] underline-offset-[10px]">
                 shopping list
               </span>
               .
@@ -68,7 +70,7 @@ export default function Hero() {
               <DownloadButton />
               <a
                 href="#screens"
-                className="inline-flex items-center gap-2 rounded-full border border-cream-300/25 px-5 py-3 text-base font-semibold text-cream-200 transition hover:border-cream-300/50 hover:text-cream-50 sm:px-6 sm:py-[1.1rem]"
+                className="inline-flex items-center gap-2 rounded-full border border-cream-300/25 px-5 py-3 text-base font-semibold text-cream-200 transition hover:border-herb-400/50 hover:text-herb-200 sm:px-6 sm:py-[1.1rem]"
               >
                 See it in action
                 <svg
@@ -116,7 +118,7 @@ export default function Hero() {
                   alt="Recipe Pilot recipe screen: Classic Beef Tacos with its ingredient list, steps and a Cook along button."
                   rotate={-7}
                   width="w-36 sm:w-40"
-                  glow="herb"
+                  glow="cream"
                 />
               </div>
 
@@ -126,7 +128,7 @@ export default function Hero() {
                   alt="Recipe Pilot home screen in night-kitchen dark mode: greeting, library stats, quick actions and the Ready in 30 shelf."
                   rotate={3.5}
                   width="w-[15.5rem] sm:w-[17rem]"
-                  glow="ember"
+                  glow="herb"
                   className="relative"
                 />
               </div>

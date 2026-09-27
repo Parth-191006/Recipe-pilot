@@ -16,14 +16,15 @@
  *
  * `rotate` and `glow` exist so the mockups are angled and offset rather than
  * parked flat and centred — the point of the layout is that it does not look
- * like a template.
+ * like a template. The glow defaults to herb, because green leads the page;
+ * the few call sites that pass another value are the deliberate accents.
  */
 export default function PhoneFrame({
   src,
   alt,
   rotate = 0,
   width = 'w-60',
-  glow = 'ember',
+  glow = 'herb',
   className = '',
   caption,
 }) {

@@ -1,13 +1,25 @@
 @import 'tailwindcss';
 
 /* ==========================================================================
-   Design tokens — "warm kitchen at night"
+   Design tokens — "warm kitchen at night", led by herb green
    --------------------------------------------------------------------------
-   Colours are lifted from the app itself: the ember is Recipe Pilot's
-   terracotta CTA, the herb green is its checkmark/progress green, and the
-   night stack is the dark-theme surface (warm charcoal with a green cast,
-   never a neutral grey). Three core hues + warm neutrals, no gradients
-   between them.
+   Colours are lifted from the app itself: the herb green is its
+   checkmark/progress green and now leads the page, the ember is its
+   terracotta CTA and is now the rare warm accent, and the night stack is the
+   dark-theme surface (warm charcoal with a green cast, never a neutral
+   grey). Three core hues + warm neutrals, no gradients between them.
+
+   Who leads, and why:
+   • Herb green owns every structural surface — the download button, the
+     headline accent, the section eyebrows, chips, bullets, the meter,
+     ::selection and the focus ring. `herb-600` had to be added because the
+     ramp stopped at mint (#a8dc94), which is far too light to carry a white
+     label (1.9:1). It is the deepest step that still reads as the same
+     family: herb-400 is 103°, herb-500 is 116°, herb-600 is 111°.
+   • Ember appears exactly four times, each in a "heat or mild friction"
+     slot: the hero's warm rim light, the Cook along phone's glow, that
+     row's +1/+5 minute timer chips, and the install band's kicker and
+     build-from-source link, on cream, where terracotta reads best.
    ========================================================================== */
 @theme {
   --color-night-950: #0a0f0d; /* page base */
@@ -24,21 +36,25 @@
   --color-cream-400: #a89e8a; /* muted text */
   --color-cream-500: #847b69; /* quietest text */
 
-  --color-ember-300: #ffb38a;
+  --color-ember-300: #ffb38a; /* warm accent type — timer chips */
   --color-ember-400: #ff8a5b;
-  --color-ember-500: #ea5a2b; /* the app's CTA terracotta */
-  --color-ember-600: #c9451c;
+  --color-ember-500: #ea5a2b; /* the app's CTA terracotta → source of the glow */
+  --color-ember-600: #b4401a; /* on cream: 4.93:1 (was #c9451c, 4.18:1) */
+  --color-ember-700: #8f2f0e; /* on cream, hover — darkens, never lightens */
 
-  --color-herb-200: #e4f7d4;
-  --color-herb-300: #cdefb4;
-  --color-herb-400: #a8dc94; /* the app's mint */
-  --color-herb-500: #6fbf6a;
+  --color-herb-200: #e4f7d4; /* chip type on dark */
+  --color-herb-300: #cdefb4; /* the headline accent + section eyebrows */
+  --color-herb-400: #a8dc94; /* the app's mint — row kickers, dots, meter */
+  --color-herb-500: #6fbf6a; /* the CTA's hover bloom — night-950 on it is 8.59:1 */
+  --color-herb-600: #3a7d2e; /* the CTA fill — white on it is 5.06:1 */
 
   --font-display: 'Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
   --font-body: 'Karla', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
     sans-serif;
 
   --shadow-lift: 0 34px 70px -32px rgb(0 0 0 / 0.85);
+  --shadow-herb: 0 20px 55px -20px rgb(58 125 46 / 0.55);
+  /* Kept for the ember accent; nothing casts it today. */
   --shadow-ember: 0 20px 55px -20px rgb(234 90 43 / 0.5);
 
   --animate-float: float 9s ease-in-out infinite;
@@ -111,8 +127,8 @@
   }
 
   ::selection {
-    background: var(--color-ember-500);
-    color: #fff;
+    background: var(--color-herb-400);
+    color: var(--color-night-950);
   }
 
   img {
@@ -134,7 +150,10 @@
 }
 
 /* Soft light sources, drawn as plain radial gradients (no blur filters — the
- * gradient is already soft and this stays cheap on a mid-range phone). */
+ * gradient is already soft and this stays cheap on a mid-range phone).
+ *
+ * Weighting matters as much as hue here: the herb glows are the page's light,
+ * and the ember glow is the accent — two small rims, never a section wash. */
 @utility glow-ember {
   background: radial-gradient(
     closest-side,
@@ -147,8 +166,19 @@
 @utility glow-herb {
   background: radial-gradient(
     closest-side,
-    rgb(168 220 148 / 0.3),
-    rgb(168 220 148 / 0.08) 55%,
+    rgb(168 220 148 / 0.34),
+    rgb(168 220 148 / 0.1) 55%,
+    transparent 78%
+  );
+}
+
+/* A saturated deep-green pool, for the one moment that should read as
+ * unmistakably green rather than as a soft warm wash — the closing CTA. */
+@utility glow-herb-deep {
+  background: radial-gradient(
+    closest-side,
+    rgb(58 125 46 / 0.4),
+    rgb(58 125 46 / 0.12) 55%,
     transparent 78%
   );
 }

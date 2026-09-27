@@ -23,6 +23,7 @@ const ROWS = [
     alt: 'Grocery list screen: progress header reading 0 of 9 picked up, then Produce, Dairy & Eggs and Meat & Seafood sections with checkboxes and quantity pills.',
     rotate: -2.5,
     glow: 'herb',
+    chipTone: 'herb',
     caption:
       'Real screenshot — one tap turns Classic Beef Tacos into counted, tickable aisles.',
     chips: AISLES,
@@ -39,6 +40,7 @@ const ROWS = [
     alt: 'Recipe screen for Classic Beef Tacos showing nine ingredients, tag pills for Quick & Easy, Dinner, High Protein and Mexican, the Ingredients list, Steps, and buttons for Cook along and Generate grocery list.',
     rotate: 2.5,
     glow: 'ember',
+    chipTone: 'ember',
     caption: 'Real screenshot — steps carry their own timings; cook-along uses them.',
     chips: ['+1 min', '+5 min', '−1 min', 'stopwatch instead'],
   },
@@ -54,10 +56,18 @@ const ROWS = [
     alt: 'Home screen in dark mode: RECIPE PILOT hero card reading Plan it. Shop it. Cook it., library statistics, New recipe / Surprise me / My list actions and a Ready in 30 shelf.',
     rotate: -3,
     glow: 'cream',
+    chipTone: 'herb',
     caption: 'Real screenshot — night scene, glowing tiles, and the stats at a glance.',
     chips: ['dark by default', 'glow toggle', '10 built-in recipes'],
   },
 ];
+
+// Chips are green by default. Row 02 — the timer row — is ember's third accent
+// appearance, because heat is the one thing on this page that is not green.
+const CHIP_TONE = {
+  herb: 'border-herb-500/25 bg-herb-500/12 text-herb-200',
+  ember: 'border-ember-400/30 bg-ember-500/12 text-ember-300',
+};
 
 /**
  * Feature highlights as alternating rows with real screenshots in phone
@@ -111,7 +121,7 @@ export default function Features() {
                 <div
                   className={`md:col-span-6 ${flip ? 'md:order-1 md:col-start-1' : 'md:col-start-7'}`}
                 >
-                  <p className="display flex items-baseline gap-3 text-sm font-semibold tracking-[0.14em] text-ember-300 uppercase">
+                  <p className="display flex items-baseline gap-3 text-sm font-semibold tracking-[0.14em] text-herb-400 uppercase">
                     <span className="text-cream-500">{row.index}</span>
                     {row.kicker}
                   </p>
@@ -130,7 +140,7 @@ export default function Features() {
                     {row.chips.map((chip) => (
                       <li
                         key={chip}
-                        className="rounded-full border border-white/8 bg-night-800/70 px-3 py-1.5 text-[0.78rem] font-medium text-cream-300"
+                        className={`rounded-full border px-3 py-1.5 text-[0.78rem] font-medium ${CHIP_TONE[row.chipTone]}`}
                       >
                         {chip}
                       </li>
@@ -145,7 +155,7 @@ export default function Features() {
         {/* 04 — the finish line. The celebration is a particle rain, so it is
             re-created here in CSS and labelled as such rather than faked with a
             still image. */}
-        <div className="relative overflow-hidden rounded-[2rem] border border-white/6 bg-night-850 px-6 py-12 sm:px-12 sm:py-16">
+        <div className="relative overflow-hidden rounded-[2rem] border border-herb-400/15 bg-night-850 px-6 py-12 sm:px-12 sm:py-16">
           <div
             aria-hidden="true"
             className="glow-herb pointer-events-none absolute -top-24 -right-16 h-80 w-80 opacity-70"
