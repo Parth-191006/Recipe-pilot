@@ -1,9 +1,12 @@
 /**
  * A phone mockup for real app screenshots.
  *
- * The screenshots are 720×1600, so the screen uses that exact aspect ratio:
- * nothing is cropped, nothing is letterboxed, and swapping in a replacement
- * screenshot of the same size needs no layout changes.
+ * The screen takes the screenshot's natural aspect ratio: nothing is cropped,
+ * nothing is letterboxed, and no ratio is hard-coded. (It was 720/1600 once,
+ * but replacement screenshots re-encoded by WhatsApp arrived a few pixels
+ * wider — 781–791 px — and a fixed ratio centre-cropped the back arrow and
+ * corner icons off them.) Swapping in a replacement screenshot of roughly the
+ * same shape needs no layout changes.
  *
  * `width` sizes the *device* — the figure is shrink-wrapped around it, and the
  * glow is an oversized overlay relative to that, so a glow can never influence
@@ -46,11 +49,9 @@ export default function PhoneFrame({
           <img
             src={src}
             alt={alt}
-            width="720"
-            height="1600"
             loading="lazy"
             decoding="async"
-            className="block aspect-[720/1600] w-full object-cover object-top"
+            className="block w-full"
           />
           {/* Glass: a barely-there diagonal sheen so the bezel reads as glass. */}
           <div

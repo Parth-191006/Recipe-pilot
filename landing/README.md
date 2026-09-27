@@ -69,8 +69,10 @@ file):
 ## Screenshot placeholders
 
 I used the three real screenshots you sent rather than grey boxes — they are
-already in `landing/public/screenshots/`, all **720×1600**, which is why the
-phone frames fit them exactly with no cropping.
+already in `landing/public/screenshots/`. Phone frames render each image at
+its **natural aspect ratio** (no fixed ratio in the markup), so a replacement
+screenshot fits without cropping even if its exact pixel width differs a
+little.
 
 | File | Shown in | Content |
 |---|---|---|
@@ -78,15 +80,14 @@ phone frames fit them exactly with no cropping.
 | `recipe-detail.jpg` | Hero (back phone) + feature 02 | Classic Beef Tacos: ingredients, steps, Cook along |
 | `grocery-list.jpg` | Feature 01 | Grocery list: aisle sections, quantity pills, checkboxes |
 
-To swap one, drop a replacement with **the same filename and a 720×1600
-aspect** — nothing else needs changing. If you use a different aspect ratio,
-change the frame in `src/components/PhoneFrame.jsx`
-(`aspect-[720/1600]`) to match, or the screenshot will crop.
+To swap one, drop a replacement with **the same filename and roughly the same
+shape** (portrait, ~1:2.2) — nothing else needs changing.
 
 Two things worth re-shooting when convenient:
 
-- These shots predate the latest build, where the quantity pill now reads
-  **"1 cup" / "0.5 cup"** instead of "1 cups" / "0.5 cups".
+- These shots still read **"1 cups" / "0.5 cups"** in the quantity pills
+  (taken on a device running the previous build); the latest build formats
+  them "1 cup" / "0.5 cup".
 - The **finish/confetti moment is re-created in CSS** (`FillMeter` + the
   ticked-off rows in feature 04), because it is an animation. A short screen
   recording, or an animated GIF/WebP, would let that block show the real thing.
