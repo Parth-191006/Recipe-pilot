@@ -1,5 +1,6 @@
 import DownloadButton from '../components/DownloadButton.jsx';
 import FadeContent from '../components/FadeContent.jsx';
+import { KitchenLandscape } from '../components/CartoonScene.jsx';
 import PhoneFrame from '../components/PhoneFrame.jsx';
 import { DOWNLOAD_SIZE, LICENSE_URL } from '../site.js';
 
@@ -14,18 +15,12 @@ import { DOWNLOAD_SIZE, LICENSE_URL } from '../site.js';
  */
 export default function Hero() {
   return (
-    <section className="relative pt-12 pb-16 sm:pt-16 sm:pb-24 lg:pt-20">
-      {/* Two light sources, no blur filters — just soft radial gradients. The
-          green one is now the big one, behind the headline; the warm rim is the
-          first of ember's four accent appearances. */}
-      <div
-        aria-hidden="true"
-        className="glow-herb pointer-events-none absolute -top-48 -left-44 h-[46rem] w-[46rem] opacity-85"
-      />
-      <div
-        aria-hidden="true"
-        className="glow-ember pointer-events-none absolute top-24 -right-32 h-[26rem] w-[26rem] opacity-40"
-      />
+    <section className="relative pt-12 pb-44 sm:pt-16 sm:pb-56 lg:pt-20 lg:pb-64">
+      {/* The backdrop, anchored to the bottom of the section — and the bottom
+          padding above is sized to clear it, so no type or phone ever lands on
+          the hills. The scene paints no sky of its own, so the band's top edge
+          is invisible and the moon simply sits in the page's sky. */}
+      <KitchenLandscape className="pointer-events-none absolute bottom-0 left-0 block h-32 w-full sm:h-44 lg:h-52" />
 
       <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
         <div className="grid items-center gap-16 lg:grid-cols-12 lg:gap-6">
@@ -89,7 +84,10 @@ export default function Hero() {
               </a>
             </div>
 
-            <p className="mt-6 text-sm text-cream-500">
+            {/* cream-400, not cream-500: this line sits on the sky, which is
+                lighter than the dark planes, and cream-500 lands at 3.7:1
+                there. cream-400 is 5.8:1. */}
+            <p className="mt-6 text-sm text-cream-400">
               Latest release · {DOWNLOAD_SIZE} · Free &amp;{' '}
               <a
                 className="text-cream-400 underline decoration-cream-500/50 underline-offset-4 transition hover:text-cream-200"
@@ -118,7 +116,6 @@ export default function Hero() {
                   alt="Recipe Pilot recipe screen: Classic Beef Tacos with its ingredient list, steps and a Cook along button."
                   rotate={-7}
                   width="w-36 sm:w-40"
-                  glow="cream"
                 />
               </div>
 
@@ -128,7 +125,6 @@ export default function Hero() {
                   alt="Recipe Pilot home screen in night-kitchen dark mode: greeting, library stats, quick actions and the Ready in 30 shelf."
                   rotate={3.5}
                   width="w-[15.5rem] sm:w-[17rem]"
-                  glow="herb"
                   className="relative"
                 />
               </div>

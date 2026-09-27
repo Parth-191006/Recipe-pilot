@@ -8,40 +8,27 @@
  * corner icons off them.) Swapping in a replacement screenshot of roughly the
  * same shape needs no layout changes.
  *
- * `width` sizes the *device* — the figure is shrink-wrapped around it, and the
- * glow is an oversized overlay relative to that, so a glow can never influence
- * how big the phone renders. (It did, once: the width class sat on the glow
- * div, so the screen sized itself to the screenshot's intrinsic 720px and the
- * mockups rendered at ~650px instead of ~260px.)
+ * `width` sizes the *device* — the figure is shrink-wrapped around it, so
+ * nothing but that class decides how big a phone renders.
  *
- * `rotate` and `glow` exist so the mockups are angled and offset rather than
- * parked flat and centred — the point of the layout is that it does not look
- * like a template. The glow defaults to herb, because green leads the page;
- * the few call sites that pass another value are the deliberate accents.
+ * `rotate` exists so the mockups are angled and offset rather than parked flat
+ * and centred — the point of the layout is that it does not look like a
+ * template.
+ *
+ * There is no `glow` prop any more, and no halo behind the device: against the
+ * flat cartoon backdrop a soft bloom was the one element that looked pasted on.
+ * The bezel, the glass sheen and `shadow-lift` do the separating instead.
  */
 export default function PhoneFrame({
   src,
   alt,
   rotate = 0,
   width = 'w-60',
-  glow = 'herb',
   className = '',
   caption,
 }) {
-  const glowClass =
-    glow === 'herb'
-      ? 'glow-herb'
-      : glow === 'cream'
-        ? 'glow-cream'
-        : 'glow-ember';
-
   return (
     <figure className={`relative w-fit ${className}`}>
-      <div
-        className={`${glowClass} pointer-events-none absolute -inset-x-12 -inset-y-16 -z-10 rounded-full`}
-        aria-hidden="true"
-      />
-
       <div
         className={`${width} relative rounded-[2.4rem] bg-gradient-to-b from-night-700 to-night-850 p-[3px] shadow-lift ring-1 ring-white/8`}
         style={{ transform: `rotate(${rotate}deg)` }}

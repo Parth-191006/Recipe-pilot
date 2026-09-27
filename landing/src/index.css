@@ -16,10 +16,17 @@
      ramp stopped at mint (#a8dc94), which is far too light to carry a white
      label (1.9:1). It is the deepest step that still reads as the same
      family: herb-400 is 103°, herb-500 is 116°, herb-600 is 111°.
-   • Ember appears exactly four times, each in a "heat or mild friction"
-     slot: the hero's warm rim light, the Cook along phone's glow, that
-     row's +1/+5 minute timer chips, and the install band's kicker and
+   • Ember survives only in "heat or mild friction" slots: the pot's knob in
+     the backdrop, the Cook along row's +1/+5 minute timer chips, the confetti
+     in the finish-line band, and the install band's kicker and
      build-from-source link, on cream, where terracotta reads best.
+
+   The backdrop is the app's own cartoon kitchen — see
+   components/CartoonScene.jsx — drawn flat: a moon, two mounds, a field, a
+   steaming pot and a row of vegetables. It replaced the old radial-glow light
+   sources, because a bloom behind the content read as neither a light nor an
+   illustration, and flat fills are what make a drawing read as a cartoon.
+   There are deliberately no glow utilities left in this file.
    ========================================================================== */
 @theme {
   --color-night-950: #0a0f0d; /* page base */
@@ -38,7 +45,7 @@
 
   --color-ember-300: #ffb38a; /* warm accent type — timer chips */
   --color-ember-400: #ff8a5b;
-  --color-ember-500: #ea5a2b; /* the app's CTA terracotta → source of the glow */
+  --color-ember-500: #ea5a2b; /* the app's CTA terracotta → the timer chips */
   --color-ember-600: #b4401a; /* on cream: 4.93:1 (was #c9451c, 4.18:1) */
   --color-ember-700: #8f2f0e; /* on cream, hover — darkens, never lightens */
 
@@ -54,11 +61,43 @@
 
   --shadow-lift: 0 34px 70px -32px rgb(0 0 0 / 0.85);
   --shadow-herb: 0 20px 55px -20px rgb(58 125 46 / 0.55);
-  /* Kept for the ember accent; nothing casts it today. */
-  --shadow-ember: 0 20px 55px -20px rgb(234 90 43 / 0.5);
 
   --animate-float: float 9s ease-in-out infinite;
   --animate-pulse-dot: pulse-dot 2.4s ease-in-out infinite;
+}
+
+/* --------------------------------------------------------------------------
+   The backdrop's palette, lifted from the app's _CartoonKitchenPainter — the
+   dusk variant it paints the home screen's hero card with.
+
+   Kept out of `@theme` on purpose: these are illustration fills read by the
+   inline SVGs in CartoonScene.jsx, not utilities, and a plain `:root` block is
+   always emitted rather than tree-shaken when no utility happens to use it.
+
+   One deliberate departure from the app: the sky and hills are hue-shifted
+   warmer. The app's night sky is 152° and its hills 133–138° — a cooler, almost
+   teal green — while the page's herb ramp runs 95–116°. These sit at 112° and
+   107–115° so the landscape is the same green the page leads with, rather than
+   a second green arriving from behind the content.
+   -------------------------------------------------------------------------- */
+:root {
+  --scene-sky-top: #1a2818; /* the top of the page, and the overscroll colour */
+  --scene-hill-back: #24421c; /* the mounds */
+  --scene-hill-front: #2f5c2b; /* the field in front of them */
+  /* Softened from the app's #f5f5f5: a backdrop moon shouldn't out-shout the
+     content it is behind, and against this sky pure white lands at 14:1. */
+  --scene-moon: #e9eef0;
+  --scene-moon-crater: #90a4ae;
+  --scene-pot: #37474f;
+  --scene-pot-lid: #455a64;
+  --scene-terracotta: #ea5a2b; /* the pot's knob — ember's one appearance here */
+  --scene-tomato: #e53935;
+  --scene-leaf: #2e7d32;
+  --scene-broccoli: #43a047;
+  --scene-broccoli-light: #a5d6a7;
+  --scene-carrot: #fb8c00;
+  --scene-eggplant: #8e24aa;
+  --scene-eggplant-shade: #6a1b9a;
 }
 
 @keyframes float {
@@ -91,7 +130,9 @@
   }
 
   body {
-    background-color: var(--color-night-950);
+    /* The sky colour, so the overscroll area above the page matches the top of
+     * the gradient rather than flashing the flat dark plane. */
+    background-color: var(--scene-sky-top);
     color: var(--color-cream-100);
     font-family: var(--font-body);
     font-optical-sizing: auto;
@@ -149,46 +190,31 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Soft light sources, drawn as plain radial gradients (no blur filters — the
- * gradient is already soft and this stays cheap on a mid-range phone).
- *
- * Weighting matters as much as hue here: the herb glows are the page's light,
- * and the ember glow is the accent — two small rims, never a section wash. */
-@utility glow-ember {
-  background: radial-gradient(
-    closest-side,
-    rgb(234 90 43 / 0.42),
-    rgb(234 90 43 / 0.12) 55%,
-    transparent 78%
+/* The page's sky: the scene in CartoonScene.jsx paints no sky of its own, so
+ * this is what it sits in. Two stops, top colour to the flat page black the
+ * rest of the page is built on — a cartoon wants flat fields, not a bloom, and
+ * by the time the gradient reaches the closing sections it is simply the plane
+ * colour again. */
+@utility sky-night {
+  background-color: var(--color-night-950);
+  background-image: linear-gradient(
+    180deg,
+    var(--scene-sky-top) 0%,
+    var(--color-night-950) 100%
   );
 }
 
-@utility glow-herb {
-  background: radial-gradient(
-    closest-side,
-    rgb(168 220 148 / 0.34),
-    rgb(168 220 148 / 0.1) 55%,
-    transparent 78%
-  );
-}
-
-/* A saturated deep-green pool, for the one moment that should read as
- * unmistakably green rather than as a soft warm wash — the closing CTA. */
-@utility glow-herb-deep {
-  background: radial-gradient(
-    closest-side,
-    rgb(58 125 46 / 0.4),
-    rgb(58 125 46 / 0.12) 55%,
-    transparent 78%
-  );
-}
-
-@utility glow-cream {
-  background: radial-gradient(
-    closest-side,
-    rgb(245 238 225 / 0.16),
-    transparent 75%
-  );
+/* Sparse cartoon sparkles, one composited fixed layer like the grain. Drawn in
+ * white so they read on the night planes and all but vanish over the cream
+ * band — no second colour to keep in sync. */
+@utility starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg stroke='%23ffffff' stroke-width='2' stroke-linecap='round' fill='none'%3E%3Cpath d='M41 44h14M48 37v14' stroke-opacity='.5'/%3E%3Cpath d='M163 86h10M168 81v10' stroke-opacity='.38'/%3E%3C/g%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='120' cy='20' r='1.6' fill-opacity='.4'/%3E%3Ccircle cx='24' cy='150' r='1.3' fill-opacity='.32'/%3E%3Ccircle cx='186' cy='180' r='1.5' fill-opacity='.36'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
 }
 
 /* Hairline rules that read as hand-drawn rather than CSS-default. */

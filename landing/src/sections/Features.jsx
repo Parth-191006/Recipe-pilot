@@ -1,3 +1,4 @@
+import { Confetti } from '../components/CartoonScene.jsx';
 import FillMeter from '../components/FillMeter.jsx';
 import PhoneFrame from '../components/PhoneFrame.jsx';
 
@@ -22,7 +23,6 @@ const ROWS = [
     src: './screenshots/grocery-list.jpg',
     alt: 'Grocery list screen: progress header reading 0 of 9 picked up, then Produce, Dairy & Eggs and Meat & Seafood sections with checkboxes and quantity pills.',
     rotate: -2.5,
-    glow: 'herb',
     chipTone: 'herb',
     caption:
       'Real screenshot — one tap turns Classic Beef Tacos into counted, tickable aisles.',
@@ -39,7 +39,6 @@ const ROWS = [
     src: './screenshots/recipe-detail.jpg',
     alt: 'Recipe screen for Classic Beef Tacos showing nine ingredients, tag pills for Quick & Easy, Dinner, High Protein and Mexican, the Ingredients list, Steps, and buttons for Cook along and Generate grocery list.',
     rotate: 2.5,
-    glow: 'ember',
     chipTone: 'ember',
     caption: 'Real screenshot — steps carry their own timings; cook-along uses them.',
     chips: ['+1 min', '+5 min', '−1 min', 'stopwatch instead'],
@@ -55,7 +54,6 @@ const ROWS = [
     src: './screenshots/home.jpg',
     alt: 'Home screen in dark mode: RECIPE PILOT hero card reading Plan it. Shop it. Cook it., library statistics, New recipe / Surprise me / My list actions and a Ready in 30 shelf.',
     rotate: -3,
-    glow: 'cream',
     chipTone: 'herb',
     caption: 'Real screenshot — night scene, glowing tiles, and the stats at a glance.',
     chips: ['dark by default', 'glow toggle', '10 built-in recipes'],
@@ -111,7 +109,6 @@ export default function Features() {
                     src={row.src}
                     alt={row.alt}
                     rotate={row.rotate}
-                    glow={row.glow}
                     width={i === 1 ? 'w-[14.5rem] sm:w-[15.5rem]' : 'w-[15.5rem] sm:w-[16.5rem]'}
                     className="mx-auto md:mx-0"
                     caption={row.caption}
@@ -156,10 +153,7 @@ export default function Features() {
             re-created here in CSS and labelled as such rather than faked with a
             still image. */}
         <div className="relative overflow-hidden rounded-[2rem] border border-herb-400/15 bg-night-850 px-6 py-12 sm:px-12 sm:py-16">
-          <div
-            aria-hidden="true"
-            className="glow-herb pointer-events-none absolute -top-24 -right-16 h-80 w-80 opacity-70"
-          />
+          <Confetti className="pointer-events-none absolute -top-3 right-1 h-36 w-44 sm:h-48 sm:w-60" />
           <div className="relative grid items-center gap-12 md:grid-cols-2">
             <div>
               <p className="display flex items-baseline gap-3 text-sm font-semibold tracking-[0.14em] text-herb-300 uppercase">

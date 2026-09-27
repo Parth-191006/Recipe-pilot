@@ -15,8 +15,9 @@ npm run preview    # serve the built output locally
 ```
 
 Stack: **Vite + React + Tailwind CSS v4** (`@tailwindcss/vite` — no PostCSS
-config, no `tailwind.config.js`; every design token lives in
-`src/index.css` under `@theme`).
+config, no `tailwind.config.js`; the design tokens live in `src/index.css`
+under `@theme`, and the backdrop's illustration fills in a plain `:root` block
+below it).
 
 ---
 
@@ -28,7 +29,8 @@ config, no `tailwind.config.js`; every design token lives in
 | Recurring edge | One **diagonal seam** motif, used on the entry to the "why offline" plane, the cream install band, and the final CTA. | Organic, kitchen-ish edge instead of three stacked rectangles — and it costs one `<div>` with a `clip-path`. |
 | Type | **Fraunces** (display; a soft, high-contrast serif with real warmth at large optical sizes) + **Karla** (body; plain, humanist, very readable). Two fonts, no third. | Fraunces reads like a cookbook rather than a dev tool; Karla stays out of the way. No Inter, no system-ui-everywhere. |
 | Palette | **Herb green leads**: the CTA fills with a deep leaf green `#3a7d2e`, and accents use the app's mint `#a8dc94`. **Ember** `#ea5a2b` (the app's CTA terracotta) is now the rare warm accent; the **night** stack (`#0a0f0d → #21302a`, warm charcoal with a green cast) is unchanged. Cream `#fdfaf3` for the one light band. | "Warm kitchen at night", lifted from the product instead of invented — and green is the app's own checkmark/progress colour, so the page leads with the product's *success* state rather than with a second warm hue. No purple→blue gradient anywhere. |
-| Imagery | The **real screenshots** (in phone frames, angled, with soft radial glows), plus one CSS re-creation of the confetti/finish moment. | No stock photos, no AI blobs. The finish moment is a particle rain, so it is labelled as a re-creation rather than faked with a still. |
+| Backdrop | The app's **own cartoon kitchen** — moon, hills, steaming pot, vegetable row — re-drawn as flat SVG (`src/components/CartoonScene.jsx`), over a two-stop sky gradient. | It is the motif the product already owns (`_CartoonKitchenPainter`), so the page and the app look like one thing instead of two. Flat fills, no blooms: a glow behind the content reads as neither a light nor an illustration. |
+| Imagery | The **real screenshots** (in phone frames, angled, lifted off the sky by their bezel and shadow), plus one CSS re-creation of the confetti/finish moment. | No stock photos, no AI blobs. The finish moment is a particle rain, so it is labelled as a re-creation rather than faked with a still. |
 | Motion | **One** React Bits component, used three times: the hero entrance and two scroll reveals. | One signature moment beats five competing effects. |
 
 ### Who leads, and where ember still lives
@@ -40,12 +42,13 @@ be added, because the ramp stopped at mint — far too light to carry a white
 label (1.9:1). The new step stays in the family (herb-400 is 103°, herb-500 is
 116°, herb-600 is 111°), and white on it is 5.06:1.
 
-Ember is deliberately **not** deleted. It appears exactly four times, each in a
-"heat or mild friction" slot, so the warmth still means something:
+Ember is deliberately **not** deleted. It survives in four "heat or mild
+friction" slots, so the warmth still means something:
 
-1. the hero's small warm rim light, opposite the page's big green light source;
-2. the *Cook along* phone's glow;
-3. that row's `+1 min / +5 min / stopwatch` timer chips;
+1. the pot's knob in the backdrop — the one place the scene is allowed a warm
+   red;
+2. the confetti in the finish-line band;
+3. the *Cook along* row's `+1 min / +5 min / stopwatch` timer chips;
 4. the install band's kicker and build-from-source link — the one warm-on-cream
    moment, in the section that is literally about the annoying part.
 
@@ -53,6 +56,46 @@ Anything that wants a warm hue outside those four slots is wrong; add a green
 step instead. Both light-band ember values were darkened for contrast
 (`ember-600` `#c9451c → #b4401a`, 4.18:1 → 4.93:1 on cream, with `ember-700`
 `#8f2f0e` for the hover, which darkens rather than lightens).
+
+### The backdrop: the app's own cartoon kitchen
+
+The page sits in the scene the app already paints on its home screen.
+`_CartoonKitchenPainter` in `lib/screens/home_screen.dart` draws a moon, two
+hills, a steaming pot and a row of vegetables from nothing but circles,
+capsules and arcs, in a dusk palette, with zero image assets.
+`src/components/CartoonScene.jsx` re-draws that scene as flat SVG for the same
+reasons: crisp at any width, no image bytes, and every shape readable in the
+diff.
+
+It replaced the radial-gradient "glow" blobs the page used to be lit by. A
+bloom behind the content read as neither a light nor an illustration, and flat
+fills are what make a drawing read as a cartoon — so there are deliberately no
+glow utilities left in `index.css`.
+
+Three things keep it behaving like a backdrop instead of like artwork:
+
+- **It paints no sky of its own.** The page supplies that (`sky-night`, a
+  two-stop gradient from `#1a2818` to the page black), so the band has no
+  visible top edge and the moon simply sits in the page's sky.
+- **The section padding is built around it.** The hero and the closing CTA each
+  carry one band at their bottom, with enough bottom padding to clear it. That
+  is checked as a real rectangle intersection, not by eye: at 390/768/1280
+  nothing carrying text or a screenshot overlaps a hill.
+- **The composition is crop-safe.** The band is 1600×360 and the call site
+  crops it with `preserveAspectRatio="slice"`, so the pot, all four vegetables
+  and the moon all sit away from the extremes and survive the narrower view.
+
+One deliberate departure from the app: the sky and hills are hue-shifted
+warmer. The app's are 133–152° — a cooler, nearly teal green — against a page
+ramp that runs 95–116°. They are 107–115° here, so the landscape is the same
+green the page leads with rather than a second one arriving from behind the
+content. The moon is likewise softened from the app's near-white `#f5f5f5` to
+`#e9eef0`, because a backdrop moon should not out-shout what is in front of
+it.
+
+Two fixed, whole-page textures sit next to the paper grain: a `starfield` of
+sparse sparkles (one tiled SVG, drawn in white so it reads on the night planes
+and all but vanishes over the cream band) and the grain that was already there.
 
 ### The React Bits component: `FadeContent`
 
@@ -121,7 +164,11 @@ Two things worth re-shooting when convenient:
   hard-coded in the markup).
 - Section copy: `src/sections/*.jsx` — `Hero`, `Offline`, `Features`,
   `Install`, `Closing`. Each is a small component with the text at the top.
-- Colour, type and motion tokens: `src/index.css` under `@theme`.
+- Colour, type and motion tokens: `src/index.css` under `@theme`. The
+  backdrop's illustration palette sits in a plain `:root` block just below it,
+  kept out of `@theme` on purpose so those fills are always emitted rather than
+  tree-shaken when no utility happens to use them.
+- Backdrop shapes: `src/components/CartoonScene.jsx` (one component per piece).
 
 The download button points at
 `https://github.com/Parth-191006/Recipe-pilot/releases/latest`, so it always

@@ -1,3 +1,4 @@
+import { KitchenLandscape } from '../components/CartoonScene.jsx';
 import DownloadButton from '../components/DownloadButton.jsx';
 import FadeContent from '../components/FadeContent.jsx';
 import { ALL_RELEASES_URL } from '../site.js';
@@ -44,11 +45,11 @@ export default function Closing() {
         </div>
       </section>
 
-      <section id="download" className="relative pt-24 pb-20 sm:pt-32 sm:pb-24">
-        <div
-          aria-hidden="true"
-          className="glow-herb-deep pointer-events-none absolute top-10 left-1/2 h-[30rem] w-[46rem] -translate-x-1/2 opacity-60"
-        />
+      <section id="download" className="relative pt-24 pb-44 sm:pt-32 sm:pb-56">
+        {/* The same backdrop the page opened on, so it closes on the same
+            horizon. The band's bottom edge is flush with the footer, which
+            reads as the hills running behind it rather than as a crop. */}
+        <KitchenLandscape className="pointer-events-none absolute bottom-0 left-0 block h-32 w-full sm:h-44" />
         <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
           <FadeContent
             duration={950}

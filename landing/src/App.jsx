@@ -21,12 +21,12 @@ import Offline from './sections/Offline.jsx';
  */
 export default function App() {
   return (
-    // overflow-clip (not overflow-hidden): the light-source gradients and the
-    // angled hero phones deliberately hang past the right gutter, and clipping
-    // here kills the sideways scroll without creating a scroll container — so
-    // the sticky nav keeps sticking. Verified: 0px of horizontal overflow at
-    // both 390px and 1280px wide.
-    <div id="top" className="relative min-h-screen overflow-clip bg-night-950">
+    // overflow-clip (not overflow-hidden): the backdrop scene spans the full
+    // viewport and the angled hero phones deliberately hang past the right
+    // gutter, and clipping here kills the sideways scroll without creating a
+    // scroll container — so the sticky nav keeps sticking. Verified: 0px of
+    // horizontal overflow at 390, 768 and 1280 wide.
+    <div id="top" className="sky-night relative min-h-screen overflow-clip">
       <Nav />
       <main>
         <Hero />
@@ -36,7 +36,11 @@ export default function App() {
         <Closing />
       </main>
       <Footer />
-      {/* Paper grain, one SVG, no blend modes. */}
+      {/* Two fixed, whole-page textures: cartoon starlight beneath the grain.
+          Neither intercepts a pointer, and neither is a section background, so
+          they read straight through the dark planes and vanish over the cream
+          band. */}
+      <div className="starfield" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
     </div>
   );
