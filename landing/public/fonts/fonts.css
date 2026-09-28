@@ -1,0 +1,80 @@
+/* ==========================================================================
+   The two fonts, served from this directory instead of from Google's CDN.
+   --------------------------------------------------------------------------
+   The page's hero badge reads "100% offline · no account, ever" and its
+   description promises "no tracking", while every visit opened two connections
+   to Google's font CDN — one for a stylesheet, one for the files — before a
+   word of it had rendered. That CDN saw the visitor's IP and Referer. A page
+   whose product is offline-first should not need a third party to draw its
+   own headline. (The domains are deliberately not spelled out in this file,
+   so that grepping the build for a third-party origin stays meaningful.)
+
+   These are the exact latin-subset variable files Google was serving for the
+   request index.html used to make — Fraunces ital,opsz,wght 500..900 (italic
+   500..800) and Karla ital,wght 300..800 (italic 300..700) — so nothing about
+   the rendering changes, only where the bytes come from. Only the `latin`
+   subset is vendored: the page is English, and a glyph outside this range
+   falls back per character exactly as it did before.
+
+   Relative urls on purpose. This file sits next to the fonts it names, so it
+   resolves correctly under the /Recipe-pilot/ prefix GitHub Pages serves a
+   project site from, and equally from a localhost dev server — no base-path
+   configuration, and no chance of a root-absolute /fonts/... url silently
+   404ing in production while working locally.
+
+   `font-display: swap` is what Google used: first paint draws in the fallback
+   and swaps when the real face arrives, so text is never invisible.
+
+   Both families are under the SIL Open Font License 1.1, which requires the
+   notice and the license to travel with the files, so `fraunces-OFL.txt` and
+   `karla-OFL.txt` sit here beside them. Keep those two files and the two
+   copyright lines with the fonts if they ever move.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 500 900;
+  font-display: swap;
+  src: url('./fraunces-vf-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-weight: 500 800;
+  font-display: swap;
+  src: url('./fraunces-vf-italic.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Karla';
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url('./karla-vf-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Declared for completeness: no Karla italic exists in the markup today, and
+   an unused @font-face costs nothing — browsers fetch a font only when a glyph
+   actually needs it. Without this, any future <em> in body copy would be
+   rendered as a synthesised oblique rather than the real italic. */
+@font-face {
+  font-family: 'Karla';
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('./karla-vf-italic.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}

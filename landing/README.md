@@ -27,7 +27,7 @@ below it).
 |---|---|---|
 | Layout break | **Asymmetric hero** — 7 of 12 columns of type, 5 of angled phone. The mockups are rotated (3.5° / −7°) and pushed past the right gutter instead of flat and centred. | The brief's single biggest red flag was "centred hero + three icon cards". Nothing on this page is a centred hero, and no section is a row of identical cards. |
 | Recurring edge | One **diagonal seam** motif, used on the entry to the "why offline" plane, the cream install band, and the final CTA. | Organic, kitchen-ish edge instead of three stacked rectangles — and it costs one `<div>` with a `clip-path`. |
-| Type | **Fraunces** (display; a soft, high-contrast serif with real warmth at large optical sizes) + **Karla** (body; plain, humanist, very readable). Two fonts, no third. | Fraunces reads like a cookbook rather than a dev tool; Karla stays out of the way. No Inter, no system-ui-everywhere. |
+| Type | **Fraunces** (display; a soft, high-contrast serif with real warmth at large optical sizes) + **Karla** (body; plain, humanist, very readable). Two fonts, no third — and both served from this repo rather than a font CDN. | Fraunces reads like a cookbook rather than a dev tool; Karla stays out of the way. No Inter, no system-ui-everywhere. |
 | Palette | **Herb green leads**: the CTA fills with a deep leaf green `#3a7d2e`, and accents use the app's mint `#a8dc94`. **Ember** `#ea5a2b` (the app's CTA terracotta) is the rare warm accent. The dark surfaces are the app's **own** dark theme, lifted verbatim out of `lib/theme/app_theme.dart` — canvas `#0b120e` → surface `#121b15` → card `#19251d` → edge `#2b3d31`, hue 138–146° — so the page and the app are the same object rather than two greens that resemble each other. Cream `#fdfaf3` for the one light band. | "Warm kitchen at night", lifted from the product instead of invented — and green is the app's own checkmark/progress colour, so the page leads with the product's *success* state rather than with a second warm hue. An earlier pass greened the ramp at unchanged luminance level for level, which protected contrast and failed at the only thing it was for: at 6–14% value the page still read as black with green accents on it. These plates are lighter as well as greener, and every text/surface pair was re-measured after the swap (0 failures over 85–89 nodes at 390 and 1280). No purple→blue gradient anywhere. |
 | Copy budget | **One paragraph per feature, no screenshot captions, no restatement.** The offline section's two paragraphs became one; three feature captions were deleted; the install steps say one thing each. | The first draft explained itself twice and captioned every screenshot with what the row's own heading already said. Measured at 390px: **−22% visible text** and **−15% page height** (−1563px), with nothing removed that a reader needs. |
 | Backdrop | The app's **own cartoon kitchen** — moon, hills, steaming pot, vegetable row — re-drawn as flat SVG (`src/components/CartoonScene.jsx`), over a two-stop sky gradient, with sparse kitchen doodles tiled onto the flat panels. | It is the motif the product already owns (`_CartoonKitchenPainter`), so the page and the app look like one thing instead of two. Flat fills, no blooms: a glow behind the content reads as neither a light nor an illustration. |
@@ -215,10 +215,17 @@ nothing depends on a redirect.)
   audit comes back with zero failures across the whole page. `cream-500`
   survives only as underline colours, and the rule is written next to the token
   in `index.css`.
-- **No analytics, no cookies.** The only third-party request is the two Google
-  Fonts files, which the footer says out loud. If you would rather have zero
-  third-party requests, self-host the two fonts in `public/fonts/` and swap the
-  `<link>` in `index.html` for `@font-face` rules.
+- **No analytics, no cookies, no third-party requests at all.** The two fonts
+  are self-hosted: `public/fonts/fonts.css` declares them from the woff2 files
+  sitting beside it, with relative urls, so the same file resolves both from a
+  localhost dev server and under the `/Recipe-pilot/` prefix GitHub Pages uses
+  for a project site. They are the exact latin-subset variable files the old
+  Google `<link>` was serving, so the rendering did not change — only who
+  serves the bytes (h1 and paragraph boxes are identical at 390 and 1280
+  before and after). The roman faces are preloaded; the italics load on
+  demand, and Karla's italic is never fetched at all because nothing is set in
+  it. The footer previously *disclosed* that Google was on the critical path —
+  it now claims the opposite, and the claim is the true one.
 - **This sub-project is invisible to the app's CI.** `flutter test` only looks
   at `test/`, and the workflow only builds the Dart project, so nothing here can
   break the APK build. `landing/.gitignore` keeps `node_modules/` and `dist/` out

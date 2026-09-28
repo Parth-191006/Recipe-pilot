@@ -30,14 +30,32 @@
       • Fraunces — a soft, high-contrast serif with real warmth. Used only for
         headlines and numbers, at large optical sizes.
       • Karla — a plain, very readable humanist grotesque for everything else.
-      Loaded from Google Fonts with display=swap so first paint never waits.
+
+      Self-hosted out of ./fonts — see fonts/fonts.css for why. The page no
+      longer talks to any third party, which matters on a page whose hero
+      badge promises no account and the description promises no tracking.
+
+      The two roman faces are preloaded because they are what the first screen
+      draws; the italics load on demand, since only one word of the page is
+      italic. `crossorigin` is required on a font preload even same-origin:
+      font fetches are always CORS-mode, and without it the preload is
+      discarded and the file is fetched a second time.
     -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..800&family=Karla:ital,wght@0,300..800;1,300..700&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="./fonts/karla-vf-normal.woff2"
+      crossorigin
     />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="./fonts/fraunces-vf-normal.woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="./fonts/fonts.css" />
   </head>
   <body>
     <div id="root"></div>

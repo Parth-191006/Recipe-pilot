@@ -47,9 +47,9 @@ export default function Footer() {
 
       <div className="mx-auto w-full max-w-6xl px-5 pb-8 sm:px-8 sm:pb-10">
         <p className="text-xs leading-relaxed text-cream-400">
-          Built by Parth — free, open source, no ads. This page sets no cookies
-          and runs no analytics; it loads two fonts from Google Fonts and
-          nothing else.
+          Built by Parth — free, open source, no ads. This page sets no cookies,
+          runs no analytics, and makes no third-party requests: the two fonts
+          are served from here.
         </p>
       </div>
     </footer>
