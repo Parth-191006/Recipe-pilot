@@ -29,16 +29,22 @@
    There are deliberately no glow utilities left in this file.
    ========================================================================== */
 @theme {
-  /* The surface ramp is green, not grey-black. It used to be a charcoal with a
-     green *cast* — about 31% saturation — which read as a dark page that
-     happened to use green accents. These are 51–60%, so the page reads as the
-     scene's world instead. Luminance is unchanged level for level, which means
-     every text contrast measured against it is unchanged too. */
-  --color-night-950: #060f08; /* page base, and the sky's bottom stop */
-  --color-night-900: #0a160c; /* second plane */
-  --color-night-850: #0d1c0f;
-  --color-night-800: #102313; /* cards */
-  --color-night-700: #17301a; /* raised surfaces, bezels */
+  /* The surface ramp is the app's own dark theme, lifted out of
+     lib/theme/app_theme.dart, which calls its dark plates "deliberately
+     green-leaning": canvas #0B120E → surfaceLow #121B15 → card #19251D → edge
+     #2B3D31. Adopting it wholesale rather than inventing a green is what makes
+     the page and the app the same object.
+
+     Note the direction: these are *lighter* than the charcoal ramp they
+     replace, not just greener. An earlier pass kept each level's luminance and
+     only turned the hue, which is the safe way to protect contrast and the
+     wrong way to be seen — at 6–14% value the page still read as black with
+     green accents on it. Green you cannot see is not a green theme. */
+  --color-night-950: #0b120e; /* page base (the app's canvas) */
+  --color-night-900: #121b15; /* the app's surfaceLow — plates on the sky */
+  --color-night-850: #19251d; /* the app's card — the raised plates */
+  --color-night-800: #1f2c23; /* a step above the card, for nested cards */
+  --color-night-700: #2b3d31; /* the app's edge — bezels, meter tracks */
 
   --color-cream-50: #fdfaf3;
   --color-cream-100: #f5eee1; /* body text on dark */
@@ -202,16 +208,20 @@
 }
 
 /* The page's sky: the scene in CartoonScene.jsx paints no sky of its own, so
- * this is what it sits in. Two stops, top colour to the flat page black the
- * rest of the page is built on — a cartoon wants flat fields, not a bloom, and
- * by the time the gradient reaches the closing sections it is simply the plane
- * colour again. */
+ * this is what it sits in.
+ *
+ * The fade is measured in pixels, not percentages, and that is deliberate. It
+ * has to be finished by the time the first raised plate starts, otherwise the
+ * sky is still lighter than the plate where they meet and the diagonal seam
+ * between them disappears (measured: a page-long gradient left it at 1.01:1,
+ * invisible). Fixed at 1100px it covers the hero at every width and leaves the
+ * rest of the page on the flat canvas, where a plate reads at 1.2:1. */
 @utility sky-night {
   background-color: var(--color-night-950);
   background-image: linear-gradient(
     180deg,
-    var(--scene-sky-top) 0%,
-    var(--color-night-950) 100%
+    var(--scene-sky-top) 0px,
+    var(--color-night-950) 1100px
   );
 }
 

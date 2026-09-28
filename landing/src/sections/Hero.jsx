@@ -47,16 +47,19 @@ export default function Hero() {
               .
             </h1>
 
+            {/* Leads with the messy input rather than with the product name,
+                so the two examples arrive before the reader has to trust
+                anything, and the payoff lands as its own short beat. */}
             <p className="mt-5 max-w-xl text-[1.02rem] leading-relaxed text-cream-300 sm:mt-6 sm:text-lg">
-              Recipe Pilot reads ingredients the way they are actually written —{' '}
-              <span className="rounded bg-night-800 px-1.5 py-0.5 font-medium text-cream-100">
+              However the recipe writes it:{' '}
+              <span className="rounded bg-night-900 px-1.5 py-0.5 font-medium text-cream-100">
                 1 (14 oz) can diced tomatoes
               </span>
               ,{' '}
-              <span className="rounded bg-night-800 px-1.5 py-0.5 font-medium text-cream-100">
+              <span className="rounded bg-night-900 px-1.5 py-0.5 font-medium text-cream-100">
                 2–3 cloves garlic
-              </span>{' '}
-              — then sorts them by aisle onto a list that lives on your phone.
+              </span>
+              . It all ends up as one list on your phone, sorted by aisle.
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-4 sm:mt-9">

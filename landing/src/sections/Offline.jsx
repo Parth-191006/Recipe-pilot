@@ -17,11 +17,11 @@ export default function Offline() {
   return (
     <section
       id="offline"
-      className="doodle-night relative mt-14 bg-night-900 pt-14 pb-20 sm:mt-24 sm:pt-24 sm:pb-28"
+      className="doodle-night relative mt-14 bg-night-850 pt-14 pb-20 sm:mt-24 sm:pt-24 sm:pb-28"
     >
       <div
         aria-hidden="true"
-        className="absolute -top-9 left-0 h-10 w-full bg-night-900 [clip-path:polygon(0_100%,100%_0,100%_100%)] sm:-top-12 sm:h-14"
+        className="absolute -top-9 left-0 h-10 w-full bg-night-850 [clip-path:polygon(0_100%,100%_0,100%_100%)] sm:-top-12 sm:h-14"
       />
 
       <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">

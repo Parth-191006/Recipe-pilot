@@ -26,7 +26,7 @@ export default function Closing() {
         />
 
         <div className="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
-          <div className="doodle-night rounded-[2rem] border border-white/6 bg-night-900/70 p-6 sm:p-10">
+          <div className="doodle-night rounded-[2rem] border border-white/6 bg-night-850 p-6 sm:p-10">
             <p className="display text-sm font-semibold tracking-[0.14em] text-herb-300 uppercase">
               In the latest build
             </p>
