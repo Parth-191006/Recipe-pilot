@@ -47,19 +47,15 @@ export default function Hero() {
               .
             </h1>
 
-            {/* Leads with the messy input rather than with the product name,
-                so the two examples arrive before the reader has to trust
-                anything, and the payoff lands as its own short beat. */}
+            {/* One line, and no second sentence. It carries the two things the
+                headline doesn't — that real recipe text is the input, and that
+                the output arrives already grouped — while avoiding the
+                headline's paste/get verb pair. The two inline chips that used
+                to sit here restated the same idea in a noisier voice; the
+                screenshots below show the messy input far better than a
+                monospace pill can. */}
             <p className="mt-5 max-w-xl text-[1.02rem] leading-relaxed text-cream-300 sm:mt-6 sm:text-lg">
-              However the recipe writes it:{' '}
-              <span className="rounded bg-night-900 px-1.5 py-0.5 font-medium text-cream-100">
-                1 (14 oz) can diced tomatoes
-              </span>
-              ,{' '}
-              <span className="rounded bg-night-900 px-1.5 py-0.5 font-medium text-cream-100">
-                2–3 cloves garlic
-              </span>
-              . It all ends up as one list on your phone, sorted by aisle.
+              Any recipe, however it’s written — sorted by aisle.
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-4 sm:mt-9">
